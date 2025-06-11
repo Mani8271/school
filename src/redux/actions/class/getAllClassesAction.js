@@ -16,17 +16,15 @@ export const getAllClassesError = (error) => ({
   payload: error,
 });
 
-// Thunk Action to fetch all classes
-let isClassesFetched = false;
+
 
 export const GetAllClassesInitiate = () => {
   return function (dispatch) {
-    if (isClassesFetched) return;
-    isClassesFetched = true;
+
     dispatch(getAllClassesStart());
     getAllClassesApi()
       .then((res) => {
-        dispatch(getAllClassesSuccess(res));
+        dispatch(getAllClassesSuccess(res.data));
         if (res.status === 200) {
           console.log("i am response in get all classes initiate", res);
         }

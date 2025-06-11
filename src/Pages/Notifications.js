@@ -392,49 +392,82 @@
 // };
 
 // export default Notifications;
-
-import React from "react";
-
-const notifications = [
-  { id: 1, title: "New Order Received", description: "You have received a new order from John Doe. Please verify the details and process it within the next 2 hours.", date: "Feb 28, 2025", time: "10:45 AM" },
-  { id: 2, title: "Server Maintenance Scheduled", description: "The server will undergo maintenance from 12:00 AM to 2:00 AM. During this time, some services may be unavailable.", date: "Feb 27, 2025", time: "09:30 PM" },
-  { id: 3, title: "New User Registration", description: "A new user, Jane Smith, has signed up. Verify the account and assign appropriate permissions.", date: "Feb 27, 2025", time: "03:15 PM" },
-  { id: 4, title: "Payment Received", description: "Payment of $250 has been received from Michael Brown for Order #124578.", date: "Feb 26, 2025", time: "06:20 PM" },
-];
-
-// Function to check if a notification is from today, yesterday, or older
-const categorizeNotifications = (notifications) => {
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-
-  const formatDate = (dateStr) => new Date(dateStr).toDateString();
-
-  const todayFormatted = today.toDateString();
-  const yesterdayFormatted = yesterday.toDateString();
-
-  return {
-    today: notifications.filter((n) => formatDate(n.date) === todayFormatted),
-    yesterday: notifications.filter((n) => formatDate(n.date) === yesterdayFormatted),
-    older: notifications.filter((n) => formatDate(n.date) !== todayFormatted && formatDate(n.date) !== yesterdayFormatted),
-  };
-};
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { GetAllNotificationsInitiate } from "../redux/actions/notifications/getAllNotificationsAction";
+import Loader from "../Components/loader";
 
 const Notifications = () => {
-  const { today, yesterday, older } = categorizeNotifications(notifications);
+  const dispatch = useDispatch();
+  const [categorizedNotifications, setCategorizedNotifications] = useState({
+    today: [],
+    yesterday: [],
+    older: [],
+  });
+
+  // Get notifications from Redux store
+  const notificationsState = useSelector((state) => state.notificationsData);
+  const { notifications, loading, error } = notificationsState;
+
+  // Function to categorize notifications by date
+  const categorizeNotifications = (notificationsList) => {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const formatDate = (dateStr) => new Date(dateStr).toDateString();
+
+    const todayFormatted = today.toDateString();
+    const yesterdayFormatted = yesterday.toDateString();
+
+    return {
+      today: notificationsList.filter((n) => formatDate(n.date) === todayFormatted),
+      yesterday: notificationsList.filter((n) => formatDate(n.date) === yesterdayFormatted),
+      older: notificationsList.filter(
+        (n) =>
+          formatDate(n.date) !== todayFormatted && formatDate(n.date) !== yesterdayFormatted
+      ),
+    };
+  };
+
+  useEffect(() => {
+    dispatch(GetAllNotificationsInitiate());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      setCategorizedNotifications(categorizeNotifications(notifications));
+    }
+  }, [notifications]);
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-100 min-h-screen">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-start">Notifications</h2>
 
       <div className="max-h-[73vh] overflow-y-auto space-y-5 p-2">
-        {[{ label: "Today", data: today }, { label: "Yesterday", data: yesterday }, { label: "Older", data: older }].map(
-          ({ label, data }) =>
+        {["Today", "Yesterday", "Older"].map((label) => {
+          const data = categorizedNotifications[label.toLowerCase()];
+          return (
             data.length > 0 && (
               <div key={label}>
                 <h3 className="text-xl font-bold text-gray-700 border-b-2 border-gray-300 pb-1">{label}</h3>
                 {data.map((notification) => (
-                  <div key={notification.id} className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-gray-900 hover:shadow-xl transition-all mt-4">
+                  <div
+                    key={notification._id}
+                    className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-gray-900 hover:shadow-xl transition-all mt-4"
+                  >
                     <h3 className="text-xl font-semibold text-gray-900">{notification.title}</h3>
                     <p className="text-gray-700 mt-2 text-lg">{notification.description}</p>
                     <div className="flex justify-between text-gray-500 text-sm mt-4">
@@ -445,7 +478,8 @@ const Notifications = () => {
                 ))}
               </div>
             )
-        )}
+          );
+        })}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import API from "../../../API/API";
 const api = new API();
-const endPoint = "classtimetable/classes/delete-class-timetable";  // Endpoint for deleting the class timetable
+const endPoint = "classtimetable/delete-class-timetable";  // Endpoint for deleting the class timetable
 
 export const deleteClassTimetableApi = async (timetableId) => {
   console.log("Timetable ID in deleteClassTimetableApi:", timetableId);

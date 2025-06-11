@@ -18,7 +18,7 @@ export const createClassError = (error) => ({
 });
 
 // Thunk Action to initiate class addition
-export const AddClassInitiate = (formData) => {
+export const AddClassInitiate = (formData,callback) => {
   return function (dispatch) {
     dispatch(createClassStart(formData));
 
@@ -26,6 +26,7 @@ export const AddClassInitiate = (formData) => {
       .then((res) => {
         dispatch(createClassSuccess(res));
         if (res.status === 200) {
+          callback(true);
           console.log("Class added successfully:", res);
         }
       })

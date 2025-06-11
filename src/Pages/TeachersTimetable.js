@@ -1,4 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  GetAllTeachersTimetableInitiate,
+  AddTeachersTimetableInitiate,
+  UpdateTeachersTimetableInitiate,
+  DeleteTeachersTimetableInitiate,
+} from "../redux/actions/staff/teachingstaff/teachersTimetableActions";
 import {
   Typography,
   Container,
@@ -9,106 +16,110 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TextField,
-  MenuItem,
   Tooltip,
   IconButton,
   Modal,
   Box,
   Button,
+  TextField,
+  MenuItem,
 } from "@mui/material";
-import { Add } from "@mui/icons-material";
-import Grid from "@mui/material/Grid";
-import { useBranch } from "../Pages/Branches"; // Import branch context
+import { Edit, Delete, Add } from "@mui/icons-material";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
-// Define branch-wise classes
-const branchData = {
-  "Main Branch": ["1A", "2A", "3A", "5B"],
-  "City Branch": ["2B", "3B"],
-  "Westside Branch": ["4A", "4B"],
-};
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-// Initial Schedule Data
-const initialSchedule = [
-  { day: "Monday", time: "10:00", class: "1A", subject: "English", teacher: "Mr. Smith" },
-  { day: "Monday", time: "02:00", class: "2B", subject: "English", teacher: "Mr. Smith" },
-  { day: "Tuesday", time: "10:00", class: "2A", subject: "English", teacher: "Mr. Smith" },
-  { day: "Tuesday", time: "02:00", class: "3B", subject: "English", teacher: "Mr. Smith" },
-  { day: "Monday", time: "09:00", class: "3A", subject: "Math", teacher: "Mrs. Johnson" },
-  { day: "Wednesday", time: "11:00", class: "5B", subject: "Science", teacher: "Ms. Wilson" },
-  { day: "thursday", time: "11:00", class: "4B", subject: "Science", teacher: "Ms. Wilson" },
-  { day: "friday", time: "11:00", class: "4A", subject: "Science", teacher: "Ms. Wilson" },
-];
-
-const teachers = ["Mr. Smith", "Mrs. Johnson", "Ms. Wilson"];
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
-function TeacherTimetable() {
-  const { selectedBranch } = useBranch(); // Get selected branch
-  const [schedule, setSchedule] = useState(initialSchedule);
-  const [selectedTeacher, setSelectedTeacher] = useState("");
-  const [openModal, setOpenModal] = useState(false);
-  const [newEntry, setNewEntry] = useState({ day: "", time: "", class: "", subject: "", teacher: "" });
+const TeacherTimetable = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
-  // Handle input change for adding new schedule entry
+  // Match your backend schema exactly
+  const initialEntryState = {
+    class: "",
+    date: "",
+    subject: "",
+    day: "",
+    teacherName: "",
+    section: "",
+    period1: "",
+    period2: "",
+    period3: "",
+    period4: "",
+    period5: "",
+    period6: "",
+    period7: "",
+    startTime: "",
+    endTime: "",
+  };
+
+  const [newEntry, setNewEntry] = useState(initialEntryState);
+
+  const { timetableList, loading, error } = useSelector(
+    (state) => state.teachersTimetableData
+  );
+
+  useEffect(() => {
+    dispatch(GetAllTeachersTimetableInitiate());
+  }, [dispatch]);
+
+  // Safeguard: Ensure timetableList is always an array
+  const safeTimetableList = Array.isArray(timetableList)
+    ? timetableList
+    : timetableList
+    ? [timetableList]
+    : [];
+
   const handleChange = (e) => {
     setNewEntry({ ...newEntry, [e.target.name]: e.target.value });
   };
 
-  // Handle saving a new schedule entry
   const handleSave = () => {
-    setSchedule([...schedule, newEntry]);
+    if (editMode) {
+      dispatch(UpdateTeachersTimetableInitiate(newEntry));
+    } else {
+      dispatch(AddTeachersTimetableInitiate(newEntry));
+    }
     setOpenModal(false);
-    setNewEntry({ day: "", time: "", class: "", subject: "", teacher: "" });
+    setNewEntry(initialEntryState);
+    setEditMode(false);
+  };
+
+  const handleEdit = (entry) => {
+    setNewEntry(entry);
+    setEditMode(true);
+    setOpenModal(true);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(DeleteTeachersTimetableInitiate(id));
   };
 
   return (
     <Container sx={{ mt: 3 }}>
-      <div>
       {/* Back Button */}
       <button
-        onClick={() => navigate(-1)} // Navigate to the previous page
+        onClick={() => navigate(-1)}
         className="flex items-center text-gray-700 hover:text-gray-900 font-semibold mb-4"
       >
-        <IoArrowBack className="mr-2 text-2xl" /> {/* Back Icon */}
-        Back
+        <IoArrowBack className="mr-2 text-2xl" /> Back
       </button>
 
-      {/* Heading */}
-      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-        Teacher Timetable - {selectedBranch}
+      {/* Title */}
+      <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+        Teacher Timetable
       </Typography>
-    </div>
 
-      <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        {/* Teacher Selection Dropdown */}
-        <TextField
-          select
-          label="Select Teacher"
-          value={selectedTeacher}
-          onChange={(e) => setSelectedTeacher(e.target.value)}
-          sx={{ width: 200, marginTop: 2 }}
-        >
-          <MenuItem value="">All Teachers</MenuItem>
-          {teachers.map((teacher) => (
-            <MenuItem key={teacher} value={teacher}>
-              {teacher}
-            </MenuItem>
-          ))}
-        </TextField>
+      {/* Add Class Button */}
+      <Tooltip title="Add New Entry">
+        <IconButton color="primary" onClick={() => setOpenModal(true)}>
+          <Add />
+        </IconButton>
+      </Tooltip>
 
-        {/* Add Class Icon */}
-        <Tooltip title="Add Class">
-          <IconButton color="primary" onClick={() => setOpenModal(true)}>
-            <Add />
-          </IconButton>
-        </Tooltip>
-      </Grid>
-
-      {/* Modal for Adding Class */}
+      {/* Add/Edit Modal */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
@@ -116,24 +127,45 @@ function TeacherTimetable() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: 600,
             bgcolor: "background.paper",
             p: 4,
             boxShadow: 24,
             borderRadius: 2,
+            maxHeight: "90vh",
+            overflowY: "auto",
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Add New Class
+            {editMode ? "Edit Timetable" : "Add New Timetable"}
           </Typography>
-          
-          {/* Day Selection */}
+
+          <TextField
+            fullWidth
+            label="Class"
+            name="class"
+            value={newEntry.class || ""}
+            onChange={handleChange}
+            margin="normal"
+          />
+
+          <TextField
+            fullWidth
+            label="Date (YYYY-MM-DD)"
+            name="date"
+            type="date"
+            value={newEntry.date || ""}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            margin="normal"
+          />
+
           <TextField
             fullWidth
             select
             label="Day"
             name="day"
-            value={newEntry.day}
+            value={newEntry.day || ""}
             onChange={handleChange}
             margin="normal"
           >
@@ -144,89 +176,137 @@ function TeacherTimetable() {
             ))}
           </TextField>
 
-          {/* Time Input */}
-          <TextField fullWidth label="Time" name="time" value={newEntry.time} onChange={handleChange} margin="normal" />
-
-          {/* Class Selection - Filtered by Selected Branch */}
           <TextField
             fullWidth
-            select
-            label="Class"
-            name="class"
-            value={newEntry.class}
+            label="Subject"
+            name="subject"
+            value={newEntry.subject || ""}
             onChange={handleChange}
             margin="normal"
-          >
-            {branchData[selectedBranch]?.map((cls) => (
-              <MenuItem key={cls} value={cls}>
-                {cls}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
 
-          {/* Subject Input */}
-          <TextField fullWidth label="Subject" name="subject" value={newEntry.subject} onChange={handleChange} margin="normal" />
-
-          {/* Teacher Selection */}
           <TextField
             fullWidth
-            select
-            label="Teacher"
-            name="teacher"
-            value={newEntry.teacher}
+            label="Teacher Name"
+            name="teacherName"
+            value={newEntry.teacherName || ""}
             onChange={handleChange}
             margin="normal"
-          >
-            {teachers.map((teacher) => (
-              <MenuItem key={teacher} value={teacher}>
-                {teacher}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
 
-          {/* Save Button */}
-          <Button variant="contained" color="primary" fullWidth onClick={handleSave} sx={{ mt: 2 }}>
-            Save
+          <TextField
+            fullWidth
+            label="Section"
+            name="section"
+            value={newEntry.section || ""}
+            onChange={handleChange}
+            margin="normal"
+          />
+
+          <TextField
+            fullWidth
+            label="Start Time"
+            name="startTime"
+            type="time"
+            value={newEntry.startTime || ""}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            margin="normal"
+          />
+
+          <TextField
+            fullWidth
+            label="End Time"
+            name="endTime"
+            type="time"
+            value={newEntry.endTime || ""}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            margin="normal"
+          />
+
+          {Array.from({ length: 7 }).map((_, i) => (
+            <TextField
+              key={`period${i + 1}`}
+              fullWidth
+              label={`Period ${i + 1}`}
+              name={`period${i + 1}`}
+              value={newEntry[`period${i + 1}`] || ""}
+              onChange={handleChange}
+              margin="normal"
+            />
+          ))}
+
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleSave}
+            sx={{ mt: 2 }}
+          >
+            {editMode ? "Update" : "Add"}
           </Button>
         </Box>
       </Modal>
 
       {/* Timetable Table */}
-      <TableContainer component={Paper} sx={{ mt: 3 }}>
+      <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Day</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Time</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Class</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Subject</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Teacher</TableCell>
+              <TableCell>Day</TableCell>
+              <TableCell>Class</TableCell>
+              <TableCell>Teacher</TableCell>
+              <TableCell>Start → End</TableCell>
+              <TableCell>Periods</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {daysOfWeek.map((day) =>
-              schedule
-                .filter(
-                  (entry) =>
-                    entry.day === day &&
-                    (!selectedTeacher || entry.teacher === selectedTeacher) &&
-                    branchData[selectedBranch]?.includes(entry.class) // Filter by branch
-                )
-                .map((entry, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{entry.day}</TableCell>
-                    <TableCell>{entry.time}</TableCell>
-                    <TableCell>{entry.class}</TableCell>
-                    <TableCell>{entry.subject}</TableCell>
-                    <TableCell>{entry.teacher}</TableCell>
-                  </TableRow>
-                ))
+            {safeTimetableList.length > 0 ? (
+              safeTimetableList.map((entry) => (
+                <TableRow key={entry._id}>
+                  <TableCell>{entry.day || "N/A"}</TableCell>
+                  <TableCell>{entry.class || "N/A"}</TableCell>
+                  <TableCell>{entry.teacherName || "N/A"}</TableCell>
+                  <TableCell>{`${entry.startTime || ""} → ${
+                    entry.endTime || ""
+                  }`}</TableCell>
+                  <TableCell>
+                    {Array.from({ length: 7 })
+                      .map((_, i) => entry[`period${i + 1}`])
+                      .filter(Boolean)
+                      .join(", ") || "None"}
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="Edit">
+                      <IconButton onClick={() => handleEdit(entry)}>
+                        <Edit fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(entry._id)}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No timetable entries found.
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </TableContainer>
     </Container>
   );
-}
+};
 
 export default TeacherTimetable;

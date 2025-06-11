@@ -17,12 +17,13 @@ export const deleteClassError = (error) => ({
 });
 
 // Thunk Action to delete a class
-export const DeleteClassInitiate = (classId) => {
+export const DeleteClassInitiate = (classId, callback) => {
   return function (dispatch) {
     dispatch(deleteClassStart());
     deleteClassApi(classId)
       .then((res) => {
         if (res.status === 200) {
+          callback(true);
           dispatch(deleteClassSuccess(classId));
         }
       })

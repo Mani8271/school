@@ -17,16 +17,15 @@ export const getAllSectionsError = (error) => ({
 });
 
 // Thunk Action to fetch all sections
-let isSectionsFetched = false;
+
 
 export const GetAllSectionsInitiate = () => {
   return function (dispatch) {
-    if (isSectionsFetched) return;
-    isSectionsFetched = true;
+
     dispatch(getAllSectionsStart());
     getAllSectionsApi()
       .then((res) => {
-        dispatch(getAllSectionsSuccess(res));
+        dispatch(getAllSectionsSuccess(res.data));
         if (res.status === 200) {
           console.log("Response in GetAllSectionsInitiate:", res);
         }

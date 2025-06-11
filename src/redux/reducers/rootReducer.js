@@ -54,6 +54,8 @@ import AddBlogReducer from "./blog/addBlogReducer";
 import GetAllBlogsReducer from "./blog/getAllBlogsReducer";
 import AddCommentReducer from "./comments/addCommentReducer";
 import GetAllCommentsReducer from "./comments/getCommentsReducer";
+import GetAllNotificationsReducer from "./notifications/getAllNotificationsReducer";
+import teachersTimetableReducer from "./staff/teachingstaff/teachersTimetableReducer";
 
 
 
@@ -133,6 +135,12 @@ const rootReducer = combineReducers({
   //comment
   commentdetails: AddCommentReducer,
   comments: GetAllCommentsReducer,
+
+  //notifications
+   notificationsData: GetAllNotificationsReducer,
+
+   //teacher timetable
+    teachersTimetableData: teachersTimetableReducer,
 
 });
 export default rootReducer;

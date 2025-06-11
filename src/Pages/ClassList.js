@@ -12,20 +12,14 @@ import { GetAllClassesInitiate } from "../redux/actions/class/getAllClassesActio
 import { DeleteClassInitiate } from "../redux/actions/class/deleteclassAction";
 import { EditClassInitiate } from "../redux/actions/class/editClassAction";
 import Loader from "../Components/loader";
-import { data } from "react-router-dom";
+
 
 const ClassList = () => {
   const dispatch = useDispatch();
-  const { data: classes = []} = useSelector((state) => state.getclasses.classes || {});
-  const { loading: getLoading } = useSelector(
-  (state) => state.getclasses
-);
-const { loading: addLoading } = useSelector((state) => state.addClass || {});
-const { loading: editLoading } = useSelector((state) => state.editClass || {});
-const { loading: deleteLoading } = useSelector((state) => state.deleteClass || {});
+const classes = useSelector((state) => state.getclasses.classes || []);
+const { loading } = useSelector((s) => s.getclasses);
 
-
-  console.log("classes", classes);
+console.log("classes", classes);
   const [openModal, setOpenModal] = useState(false);
   const [newClassName, setNewClassName] = useState("");
   const [editingClass, setEditingClass] = useState(null);
@@ -51,23 +45,29 @@ const { loading: deleteLoading } = useSelector((state) => state.deleteClass || {
     setOpenModal(true);
   };
 
-  // const handleAddClass = () => {
-  //   if (newClassName.trim()) {
-  //     const formData = { className: newClassName.trim() };
-  //     dispatch(AddClassInitiate(formData));
-  //     setNewClassName("");
-  //     setOpenModal(false);
-  //   }
-  // };
-
+  // Function to handle adding or editing a class
   const handleAddClass = () => {
     if (newClassName.trim()) {
       const formData = { className: newClassName.trim() };
   
       if (editingClass) {
-        dispatch(EditClassInitiate(editingClass._id, formData));
+        dispatch(EditClassInitiate(editingClass._id, formData, (success) => {
+        if (success) {
+         
+          dispatch(GetAllClassesInitiate());
+        } else {
+          console.error('Failed to add teachet.');
+        }
+      }))
       } else {
-        dispatch(AddClassInitiate(formData));
+        dispatch(AddClassInitiate(formData, (success) => {
+        if (success) {
+          
+          dispatch(GetAllClassesInitiate());
+        } else {
+          console.error('Failed to add teachet.');
+        }
+      }))
       }
   
       setNewClassName("");
@@ -75,7 +75,7 @@ const { loading: deleteLoading } = useSelector((state) => state.deleteClass || {
       setOpenModal(false);
     }
   };
-  
+// Function to handle editing a class
   const handleEditClass = (classItem) => {
     console.log("Editing class:", classItem);
     setEditingClass(classItem);
@@ -86,7 +86,15 @@ const { loading: deleteLoading } = useSelector((state) => state.deleteClass || {
   const handleDeleteClass = (classId) => {
     if (window.confirm("Are you sure you want to delete this class?")) {
       // Dispatch a delete action here when it's implemented
-      dispatch(DeleteClassInitiate(classId));
+      dispatch(DeleteClassInitiate(classId, (success) => {
+        if (success) {
+         
+          dispatch(GetAllClassesInitiate());
+        } else {
+          console.error('Failed.');
+        }
+      }))
+    
     }
   };
 
@@ -99,11 +107,11 @@ const { loading: deleteLoading } = useSelector((state) => state.deleteClass || {
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-const anyLoading = getLoading || addLoading || editLoading || deleteLoading;
 
-if (anyLoading) {
+
+if (loading) {
  
-  return <Loader />;
+return <Loader />;
 }
 
   return (

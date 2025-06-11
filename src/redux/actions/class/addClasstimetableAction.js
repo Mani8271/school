@@ -18,7 +18,7 @@ export const createClassTimetableError = (error) => ({
 });
 
 // Thunk Action to initiate class timetable addition
-export const AddClassTimetableInitiate = (formData) => {
+export const AddClassTimetableInitiate = (formData, callback) => {
   return function (dispatch) {
     dispatch(createClassTimetableStart(formData));
 
@@ -26,6 +26,7 @@ export const AddClassTimetableInitiate = (formData) => {
       .then((res) => {
         dispatch(createClassTimetableSuccess(res));
         if (res.status === 200) {
+          callback(true);
           console.log("Class timetable added successfully:", res);
         }
       })

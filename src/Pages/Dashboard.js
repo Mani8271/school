@@ -34,7 +34,8 @@ const Dashboard = (userName) => {
   const { data: allstudents = [],loading: studentsLoading } = useSelector((state) => state.getallstudents.students || {});
   const totalStudents = allstudents.length;
   console.log("All Students:", allstudents);
-   const { data: classes = [],loading: classesLoading  } = useSelector((state) => state.getclasses.classes || {});
+  const classes = useSelector((state) => state.getclasses.classes || []);
+
   const totalClasses = classes.length;
   console.log("All Classes:", classes);
    const { data: allteachers = [], loading: teachersLoading } = useSelector((state) => state.getallteachers.teachers || {});
@@ -51,8 +52,8 @@ const Dashboard = (userName) => {
   console.log("Student Counts by Class:", studentCountsByClass);
   const totalBusRoutes = allbusesroutes.length;
   const [openChatbot, setOpenChatbot] = useState(false);
-  const isLoading =
-    studentsLoading || classesLoading || teachersLoading || nonteachersLoading || busRoutesLoading;
+  // const isLoading =
+  //   studentsLoading || classesLoading || teachersLoading || nonteachersLoading || busRoutesLoading;
   const navigate = useNavigate();
    useEffect(() => {
     dispatch(getAllStudentsInitiate());
@@ -166,14 +167,14 @@ const Dashboard = (userName) => {
       </CardContent>
     </Card>
   );
-  if (isLoading) {
-  return (
-    <div className="flex items-center justify-center h-[90vh]">
-      alert("Loading...");
-      <Loader/>
-    </div>
-  );
-}
+//   if (isLoading) {
+//   return (
+//     <div className="flex items-center justify-center h-[90vh]">
+//       alert("Loading...");
+//       <Loader/>
+//     </div>
+//   );
+// }
 
 
   return (

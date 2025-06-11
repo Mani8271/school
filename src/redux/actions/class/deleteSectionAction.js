@@ -18,12 +18,13 @@ export const deleteSectionError = (error) => ({
 });
 
 // Thunk Action to delete a section
-export const DeleteSectionInitiate = (sectionId) => {
+export const DeleteSectionInitiate = (sectionId,callback) => {
   return function (dispatch) {
     dispatch(deleteSectionStart());
     deleteSectionApi(sectionId)
       .then((res) => {
         if (res.status === 200) {
+          callback(true);
           dispatch(deleteSectionSuccess(sectionId));
         }
       })

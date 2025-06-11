@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
-import { Select, MenuItem, InputLabel, FormControl } from "@mui/material"; // Material UI imports
-import { useBranch } from "../Pages/Branches"; // Assuming branch selection is managed globally
+import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+import { useBranch } from "../Pages/Branches";
 import { AddClassTimetableInitiate } from "../redux/actions/class/addClasstimetableAction";
 import { useDispatch, useSelector } from "react-redux";
-import {getClassTimetableInitiate}  from "../redux/actions/class/getClassTimetableAction";
+import { getClassTimetableInitiate } from "../redux/actions/class/getClassTimetableAction";
 import Loader from "../Components/loader";
 import { deleteClassTimetableInitiate } from "../redux/actions/class/deleteClassTimetableAction";
-import  { UpdateClassTimetableInitiate } from "../redux/actions/class/updateClassTimetableAction";
+import { UpdateClassTimetableInitiate } from "../redux/actions/class/updateClassTimetableAction";
 
 const ClassTimeTable = () => {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
-  const { selectedBranch } = useBranch(); // Get the selected branch
   const [modalData, setModalData] = useState({
     class: "", section: "", period1: "",
     period2: "",
@@ -32,130 +31,74 @@ const ClassTimeTable = () => {
 
 
   const { data: classTimetables, loading } = useSelector((state) => state.getclasstimetable);
+  console.log("Class Timetables:", classTimetables);
 
   useEffect(() => {
     dispatch(getClassTimetableInitiate());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (Array.isArray(classTimetables) && classTimetables.length > 0) {
-      setTimetableData(classTimetables);
-      
-    }
-  }, [classTimetables]);
+ useEffect(() => {
+  if (Array.isArray(classTimetables)) {
+    setTimetableData(classTimetables); 
+  }
+}, [classTimetables]);
   useEffect(() => {
     console.log("Updated timetable data:", timetableData);
   }, [timetableData]);
   // Pagination state
-  const [entriesCount, setEntriesCount] = useState(1); // Number of entries per page
-  const [currentPage, setCurrentPage] = useState(1); // Current page
+  const [entriesCount, setEntriesCount] = useState(2);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(timetableData.length / entriesCount);
 
-  const totalPages = Math.ceil(timetableData.length / entriesCount); // Total pages based on data length
-  // const branchData = {
-  //   "Main Branch": ["Class 1", "Class 2", "Class 3"],
-  //   "City Branch": ["Class 4", "Class 5"],
-  //   "Westside Branch": ["Class 6", "Class 7"]  // ✅ Correct
-  // };
-
-  // const filteredData = timetableData.filter(
-  //   (data) => {
-  //     const isBranchMatch = branchData[selectedBranch]?.includes(data.class);
-  //     const isClassMatch = classFilter ? data.class === classFilter : true;
-  //     const isSectionMatch = sectionFilter ? data.section === sectionFilter : true;
-  
-  //     console.log(`Filtering: Class: ${data.class}, Section: ${data.section}`);
-  //     console.log(`Is Branch Match: ${isBranchMatch}`);
-  //     console.log(`Is Class Match: ${isClassMatch}`);
-  //     console.log(`Is Section Match: ${isSectionMatch}`);
-      
-  //     return isBranchMatch && isClassMatch && isSectionMatch;
-  //   }
-  // );
   const filteredData = timetableData.filter(
     (data) =>
       (classFilter ? data.class === classFilter : true) &&
       (sectionFilter ? data.section === sectionFilter : true)
   );
-  // const uniqueClasses = branchData[selectedBranch] || [];
+  console.log("Filtered Data:", filteredData);
+
   const uniqueClasses = [...new Set(timetableData.map(item => item.class))];
-
-  // Function to handle class selection and update the section dropdown
-  // const handleClassChange = (e) => {
-
-  //   const selectedClass = e.target.value;
-  //   setClassFilter(selectedClass);
-  //   setSectionFilter(""); // Reset section filter
-  //   const relatedSections = timetableData
-  //     .filter(
-  //       (data) =>
-  //         data.class === selectedClass &&
-  //         branchData[selectedBranch]?.includes(selectedClass)
-  //     )
-  //     .map((data) => data.section);
-  //   setUniqueSections([...new Set(relatedSections)]);
-  // };
-
   const handleClassChange = (e) => {
-     const selectedClass = e.target.value;
+    const selectedClass = e.target.value;
     setClassFilter(selectedClass);
-    setSectionFilter(""); // Reset section filter
+    setSectionFilter(""); 
     const relatedSections = timetableData
-    .filter((data) => data.class === selectedClass)
-    .map((data) => data.section);
+      .filter((data) => data.class === selectedClass)
+      .map((data) => data.section);
     setUniqueSections([...new Set(relatedSections)]);
     console.log("Selected Class:", selectedClass);
     console.log("Related Sections:", relatedSections);
   };
-
-  
-
-  // Function to handle form submission (adding or editing timetable)
-  // const handleModalSubmit = () => {
-
-  //   const existingIndex = timetableData.findIndex(
-  //     (data) =>
-  //       data.class === modalData.class && data.section === modalData.section
-  //   );
-  //   if (existingIndex >= 0) {
-  //     setTimetableData(
-  //       timetableData.map((data, index) =>
-  //         index === existingIndex ? modalData : data
-  //       )
-  //     );
-  //   } else {
-  //     setTimetableData([...timetableData, modalData]);
-  //     dispatch(AddClassTimetableInitiate(modalData));
-  //   }
-  //   setShowModal(false);
-  //   setModalData({
-  //     class: "",
-  //     section: "",
-  //     period1: "",
-  //     period2: "",
-  //     break1: "",
-  //     period3: "",
-  //     period4: "",
-  //     break2: "",
-  //     period5: "",
-  //     period6: "",
-  //     break3: "",
-  //     period7: "",
-  //   });
-  // };
+  // Handle section filter change
   const handleModalSubmit = () => {
     const existingEntry = timetableData.find(
       (data) =>
         data.class === modalData.class && data.section === modalData.section
     );
-  
+
     if (existingEntry && existingEntry._id) {
       // It's an edit, so dispatch update with ID and updated data
-      dispatch(UpdateClassTimetableInitiate(existingEntry._id, modalData));
+      dispatch(UpdateClassTimetableInitiate(existingEntry._id, modalData, (success) => {
+        if (success) {
+         
+          dispatch(getClassTimetableInitiate());
+        } else {
+          console.error('Failed.');
+        }
+      }))
+    
     } else {
       // It's a new entry, dispatch add
-      dispatch(AddClassTimetableInitiate(modalData));
+      dispatch(AddClassTimetableInitiate(modalData, (success) => {
+        if (success) {
+         
+          dispatch(getClassTimetableInitiate());
+        } else {
+          console.error('Failed.');
+        }
+      }))
     }
-  
+
     setShowModal(false);
     setModalData({
       class: "",
@@ -172,27 +115,28 @@ const ClassTimeTable = () => {
       period7: "",
     });
   };
-  
 
-  // Paginate the filtered data based on the entries per page
+
+  
   const paginatedData = filteredData.slice(
     (currentPage - 1) * entriesCount,
     currentPage * entriesCount
   );
+  console.log("Paginated Data:", paginatedData);
   // Handle change in number of entries per page
   const handleEntriesChange = (e) => {
     setEntriesCount(Number(e.target.value));
-    setCurrentPage(1); // Reset page to 1 when entries count changes
+    setCurrentPage(1); 
   };
 
-  // Handle page change
+ 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
-  if(loading){
-    return <Loader/>
+  if (loading) {
+    return <Loader />
   }
 
   return (
@@ -262,7 +206,7 @@ const ClassTimeTable = () => {
           onChange={handleEntriesChange}
           className="px-2 py-1 text-black bg-white border rounded w-[70px]"
         >
-          {[1, 2, 3, 4].map((count) => (
+          {[2, 4, 6, 8].map((count) => (
             <option key={count} value={count}>
               {count}
             </option>
@@ -272,7 +216,7 @@ const ClassTimeTable = () => {
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
-        {/* <div className="w-full max-w-full overflow-x-auto border rounded-lg"> */}
+ 
         <div className="min-w-max">
           <table className="w-full bg-white text-sm sm:text-md ">
             <thead className="bg-gray-200">
@@ -293,6 +237,14 @@ const ClassTimeTable = () => {
               </tr>
             </thead>
             <tbody>
+     
+              {paginatedData.length === 0 && (
+                  <tr>
+                    <td colSpan={13} className="text-center py-4 text-gray-500">
+                      No data found.
+                    </td>
+                  </tr>
+                )}
               {paginatedData.map((data, index) => (
                 <tr key={index} className="border-b text-sm sm:text-md hover:bg-gray-100 transition">
                   <td className="p-3 border">{data.class}</td>
@@ -322,7 +274,14 @@ const ClassTimeTable = () => {
                       onClick={() => {
                         if (window.confirm("Are you sure you want to delete this item?")) {
                           // setTimetableData(timetableData.filter((item) => item !== data));
-                          dispatch(deleteClassTimetableInitiate(data._id));
+                          dispatch(deleteClassTimetableInitiate(data._id, (success) => {
+                            if (success) {
+                              dispatch(getClassTimetableInitiate());
+                             
+                            } else {
+                              console.error('Failed to add teachet.');
+                            }
+                          }));
                         }
                       }}
                     >

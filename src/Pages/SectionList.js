@@ -11,26 +11,12 @@ import { AddSectionInitiate } from "../redux/actions/class/addSectionAction";
 import { GetAllSectionsInitiate } from "../redux/actions/class/getAllSectionsAction";
 import { UpdateSectionInitiate } from "../redux/actions/class/updateSectionAction";
 import { DeleteSectionInitiate } from "../redux/actions/class/deleteSectionAction";
+import Loader from "../Components/loader";
 
 
 
 const SectionList = () => {
-  // const { selectedBranch } = useBranch(); // Get selected branch
-
-  // // Simulated data for different branches
-  // const branchData = useMemo(() => ({
-  //   "City Branch": {
-  //     classes: [{ id: 3, name: "Class 3" }, { id: 4, name: "Class 4" }],
-  //     sections: { 3: ["A", "B", "C"], 4: ["A"] },
-  //   },
-  //   "Main Branch": {
-  //     classes: [{ id: 1, name: "Class 1" }, { id: 2, name: "Class 2" }],
-  //     sections: { 1: ["A", "B"], 2: ["A", "C"] },
-  //   },
-   
-  // }), []);
-
-  // const [classes, setClasses] = useState([]);
+ 
   const dispatch = useDispatch();
   const [sections, setSections] = useState({});
   const [selectedClass, setSelectedClass] = useState("");
@@ -42,42 +28,40 @@ const SectionList = () => {
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
-   const { data: classes = [] } = useSelector((state) => state?.getclasses?.classes || {});
-   const sections2 = useSelector((state) => state?.getsections?.sections?.data || {});
+   const classes = useSelector((state) => state.getclasses.classes || []);
+   const sections2 = useSelector((state) => state?.getsections?.sections || []);
+   console.log(sections2, "sections2");
 
-   console.log(sections2, "sections2")
+
+ const {loading} = useSelector((s) => s.getsections);
+ console.log(loading, "loading");
    
     useEffect(() => {
        dispatch(GetAllClassesInitiate());
        dispatch(GetAllSectionsInitiate());
        
      }, [dispatch]);
-    
+const totalPages = Math.ceil(filteredSections.length / entriesPerPage);
 
-  // useEffect(() => {
-  //   if (branchData[selectedBranch]) {
-  //     setClasses(branchData[selectedBranch].classes);
-  //     setSections(branchData[selectedBranch].sections);
-  //     setSelectedClass(""); // Reset selected class when branch changes
-  //     setCurrentPage(1); // Reset pagination
-  //   }
-  // }, [selectedBranch,branchData]);
-
-  const totalPages = Math.ceil((sections[selectedClass] || []).length / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
-  const currentSections = (sections[selectedClass] || []).slice(startIndex, endIndex);
-  useEffect(() => {
-    if (selectedClass) {
-      const classSections = sections2
-        .filter((sec) => sec.className === selectedClass)
-        .map((sec) => ({
-          sectionName: sec.sectionName,
-          _id: sec._id,
-        }));
-      setFilteredSections(classSections);
-    }
-  }, [selectedClass, sections]);
+const currentSections = filteredSections.slice(startIndex, endIndex);
+
+
+ useEffect(() => {
+  if (selectedClass) {
+    const classSections = sections2
+      .filter((sec) => sec.className === selectedClass)
+      .map((sec) => ({
+        sectionName: sec.sectionName,
+        _id: sec._id,
+      }));
+    setFilteredSections(classSections);
+  } else {
+    setFilteredSections([]); // Clear when no class is selected
+  }
+}, [selectedClass, sections2]);
+
 
  console.log(filteredSections, "filteredSections")
   const handleAddSection = () => {
@@ -88,55 +72,30 @@ const SectionList = () => {
 
   const handleEditSection = (section) => {
     setEditingSection(section);
-    setNewSection(section);
+   setNewSection(section.sectionName); 
     setOpenModal(true);
   };
 
-  // const handleDeleteSection = (section) => {
-  //   setSections((prevSections) => ({
-  //     ...prevSections,
-  //     [selectedClass]: prevSections[selectedClass].filter((sec) => sec !== section),
-  //   }));
-  // };
-
-  // const handleDeleteSection = (section) => {
-  //   const isConfirmed = window.confirm(`Are you sure you want to delete the section "${section}"?`);
-  //   if (isConfirmed) {
-  //     setSections((prevSections) => ({
-  //       ...prevSections,
-  //       [selectedClass]: prevSections[selectedClass].filter((sec) => sec !== section),
-  //     }));
-  //   }
-  // };  
+ // Function to handle deleting a section
   const handleDeleteSection = (sectionId) => {
     console.log(sectionId, "sectionId");
     const isConfirmed = window.confirm("Are you sure you want to delete this section?");
     
     if (isConfirmed) {
-      dispatch(DeleteSectionInitiate(sectionId));
-    }
+      dispatch(DeleteSectionInitiate(sectionId, (success) => {
+        if (success) {
+         
+          dispatch(GetAllSectionsInitiate());
+        } else {
+          console.error('Failed.');
+        }
+      }))
+    };
+    
   };
   
 
-  // const handleSaveSection = () => {
-  //   if (!newSection.trim()) return;
-
-  //   setSections((prevSections) => {
-  //     const updatedSections = { ...prevSections };
-
-  //     if (editingSection) {
-  //       updatedSections[selectedClass] = updatedSections[selectedClass].map((sec) =>
-  //         sec === editingSection ? newSection : sec
-  //       );
-  //     } else {
-  //       updatedSections[selectedClass] = [...(updatedSections[selectedClass] || []), newSection];
-  //     }
-
-  //     return updatedSections;
-  //   });
-
-  //   setOpenModal(false);
-  // };
+// Function to handle saving a new or edited section
   const handleSaveSection = () => {
     if (!newSection.trim() || !selectedClass) return;
   
@@ -151,15 +110,33 @@ const SectionList = () => {
         (sec) => sec.sectionName === editingSection && sec.className === selectedClass
       );
   
-      if (sectionToUpdate && sectionToUpdate._id) {
-        dispatch(UpdateSectionInitiate(sectionToUpdate._id, formData));
-      } 
+      if (editingSection && editingSection._id) {
+          dispatch(UpdateSectionInitiate(editingSection._id, formData, (success) => {
+            if (success) {
+              dispatch(GetAllSectionsInitiate());
+            } else {
+              console.error('Update failed');
+            }
+          }));
+        }
+
     } else {
-      dispatch(AddSectionInitiate(formData));
+      dispatch(AddSectionInitiate(formData, (success) => {
+        if (success) {
+         
+          dispatch(GetAllSectionsInitiate());
+        } else {
+          console.error('Failed.');
+        }
+      }))
     }
   
     setOpenModal(false);
   };
+  
+   if (loading) {
+      return <Loader />
+    }
   
   
 
@@ -167,7 +144,7 @@ const SectionList = () => {
     <div className="p-6" style={{ height: "90vh" }}>
       <div className="flex items-center justify-between mb-4">
         <Typography variant="h5" className="font-semibold">
-          {/* Section List - {selectedBranch} */}
+         
           section List
         </Typography>
       </div>
@@ -215,10 +192,17 @@ const SectionList = () => {
           ))}
         </select>
       </div>
+      {!selectedClass && (
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Typography fontSize="20px" color="error">
+            Please select a class to show sections.
+          </Typography>
+        </Box>
+      )}
 
       {/* Display Sections */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-        {filteredSections.map((section, index) => (
+        {currentSections.map((section, index) => (
           <Card key={index} className="shadow-lg w-full h-[120px]">
             <CardContent>
               <Typography variant="h6" color="textPrimary">

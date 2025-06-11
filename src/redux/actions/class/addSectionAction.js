@@ -18,7 +18,7 @@ export const createSectionError = (error) => ({
 });
 
 // Thunk Action to initiate section addition
-export const AddSectionInitiate = (formData) => {
+export const AddSectionInitiate = (formData,callback) => {
   return function (dispatch) {
     dispatch(createSectionStart(formData));
 
@@ -26,6 +26,7 @@ export const AddSectionInitiate = (formData) => {
       .then((res) => {
         dispatch(createSectionSuccess(res));
         if (res.status === 200) {
+          callback(true);
           console.log("Section added successfully:", res);
         }
       })

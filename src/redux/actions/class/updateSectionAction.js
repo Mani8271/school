@@ -17,12 +17,13 @@ export const updateSectionError = (error) => ({
 });
 
 // Thunk Action to update a section
-export const UpdateSectionInitiate = (section_id,sectionData) => {
+export const UpdateSectionInitiate = (section_id,sectionData,callback) => {
   return function (dispatch) {
     dispatch(updateSectionStart());
     updateSectionApi(section_id,sectionData)
       .then((res) => {
         if (res.status === 200) {
+          callback(true);
           dispatch(updateSectionSuccess(res.data.Section));
         }
       })

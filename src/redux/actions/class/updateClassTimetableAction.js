@@ -17,12 +17,13 @@ export const updateClassTimetableError = (error) => ({
 });
 
 // Thunk Action to update a class timetable
-export const UpdateClassTimetableInitiate = (timetableId, timetableData) => {
+export const UpdateClassTimetableInitiate = (timetableId, timetableData, callback) => {
   return function (dispatch) {
     dispatch(updateClassTimetableStart());
     updateClassTimetableApi(timetableId, timetableData)
       .then((res) => {
         if (res.status === 200) {
+          callback(true);
           dispatch(updateClassTimetableSuccess(res.data.updatedTimetable));
         }
       })

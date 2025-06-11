@@ -17,13 +17,14 @@ export const editClassError = (error) => ({
 });
 
 // Thunk Action to edit a class
-export const EditClassInitiate = (classId, classData) => {
+export const EditClassInitiate = (classId, classData, callback) => {
   return function (dispatch) {
     dispatch(editClassStart());
     editClassApi(classId, classData)
       .then((res) => {
         if (res.status === 200) {
           dispatch(editClassSuccess(res.data.Class));
+          callback(true);
         }
       })
       .catch((error) => {

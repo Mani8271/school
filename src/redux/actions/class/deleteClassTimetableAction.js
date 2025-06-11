@@ -17,12 +17,13 @@ export const deleteClassTimetableError = (error) => ({
 });
 
 // Thunk Action to delete a class timetable
-export const deleteClassTimetableInitiate = (timetableId) => {
+export const deleteClassTimetableInitiate = (timetableId, callback) => {
   return function (dispatch) {
     dispatch(deleteClassTimetableStart());
     deleteClassTimetableApi(timetableId)
       .then((res) => {
         if (res.status === 200) {
+          callback(true);
           dispatch(deleteClassTimetableSuccess(timetableId));
         }
       })
