@@ -126,29 +126,69 @@ const salaryData = payrollState.payroll.data || [];
   };
   // Function to generate Payslip (basic logic)
 
+  // const generatePayslip = (employee) => {
+  //   console.log("Employee Data:", employee); // Debugging
+
+  //   // Check if employee data has the required fields
+  //   // if (!employee || !employee.earnings || !employee.deductions) {
+  //   //   console.error("Invalid employee data: Missing earnings or deductions.");
+  //   //   return;
+  //   // }
+
+  //   // Ensure the missing fields have default values if undefined
+  //   employee.role = employee.role || "N/A";
+  //   employee.id = employee.id || "N/A";
+  //   employee.joiningDate = employee.joiningDate || "N/A";
+
+  //   // Set payslip data and make the payslip visible
+  //   setPayslipData(employee);
+  //   setIsPayslipVisible(true);
+
+  //   // Log state after update delay
+  //   setTimeout(() => {
+  //     console.log("Payslip Data Updated:", payslipData); // Check if these fields are now set
+  //   }, 500);
+  // };
   const generatePayslip = (employee) => {
-    console.log("Employee Data:", employee); // Debugging
+  console.log("Employee Data:", employee); // Debugging
 
-    // Check if employee data has the required fields
-    if (!employee || !employee.earnings || !employee.deductions) {
-      console.error("Invalid employee data: Missing earnings or deductions.");
-      return;
-    }
-
-    // Ensure the missing fields have default values if undefined
-    employee.role = employee.role || "N/A";
-    employee.id = employee.id || "N/A";
-    employee.joiningDate = employee.joiningDate || "N/A";
-
-    // Set payslip data and make the payslip visible
-    setPayslipData(employee);
-    setIsPayslipVisible(true);
-
-    // Log state after update delay
-    setTimeout(() => {
-      console.log("Payslip Data Updated:", payslipData); // Check if these fields are now set
-    }, 500);
+  // Build earnings and deductions
+  const earnings = {
+    basic: employee.basic || 0,
+    hra: employee.hra || 0,
+    da: employee.da || 0,
+    allowance: employee.allowance || 0,
+    medicalAllowance: employee.medicalAllowance || 0,
+    conveyance: employee.conveyance || 0,
+    others: employee.others || 0,
   };
+
+  const deductions = {
+    pf: employee.pf || 0,
+    esi: employee.esi || 0,
+    tds: employee.tds || 0,
+    profTax: employee.profTax || 0,
+    leaves: employee.leaves || 0,
+  };
+
+  // Add fallback values
+  const payslip = {
+    ...employee,
+    earnings,
+    deductions,
+    role: employee.role || "N/A",
+    id: employee.id || "N/A",
+    joiningDate: employee.joiningDate || "N/A",
+  };
+
+  setPayslipData(payslip);
+  setIsPayslipVisible(true);
+
+  setTimeout(() => {
+    console.log("Payslip Data Updated:", payslip);
+  }, 500);
+};
+
 
   
  const handleSaveSalary = async () => {
@@ -721,43 +761,52 @@ const salaryData = payrollState.payroll.data || [];
                 </tr>
               </thead>
               <tbody>
-                {displayedData.map((item, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 border">{item.employeeName}</td>
-                    <td className="px-3 py-2 border">{item.employeeId}</td>
-                    <td className="px-3 py-2 border">
-                      {new Date(item.joiningDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-3 py-2 border">{item.role}</td>
-                    <td className="px-3 py-2 border">{item.netSalary}</td>
-                    <td className="px-3 py-2 border text-center">
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => generatePayslip(item)}
-                      >
-                        Payslip
-                      </Button>
-                    </td>
-                    <td className="flex px-2 py-4 border text-center">
-                      <Button
-                        onClick={() => handleEditSalary(index)}
-                        color="primary"
-                        className="mx-1"
-                      >
-                        <EditIcon />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteSalary(index)}
-                        color="error"
-                        className="mx-1"
-                      >
-                        <DeleteIcon />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+            {displayedData.length > 0 ? (
+              displayedData.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-3 py-2 border">{item.employeeName}</td>
+                  <td className="px-3 py-2 border">{item.employeeId}</td>
+                  <td className="px-3 py-2 border">
+                    {new Date(item.joiningDate).toLocaleDateString()}
+                  </td>
+                  <td className="px-3 py-2 border">{item.role}</td>
+                  <td className="px-3 py-2 border">{item.netSalary}</td>
+                  <td className="px-3 py-2 border text-center">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => generatePayslip(item)}
+                    >
+                      Payslip
+                    </Button>
+                  </td>
+                  <td className="flex px-2 py-4 border text-center">
+                    <Button
+                      onClick={() => handleEditSalary(index)}
+                      color="primary"
+                      className="mx-1"
+                    >
+                      <EditIcon />
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteSalary(index)}
+                      color="error"
+                      className="mx-1"
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="px-3 py-4 text-center text-gray-500">
+                  No data available.
+                </td>
+              </tr>
+            )}
+          </tbody>
+
             </table>
           </div>
 

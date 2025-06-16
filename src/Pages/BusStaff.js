@@ -6,6 +6,7 @@ import { getAllBusstaffInitiate } from "../redux/actions/schoolbus/busstaff/geta
 import { AddBusstaffInitiate } from "../redux/actions/schoolbus/busstaff/addbusstaffAction";
 import { UpdateBusstaffInitiate } from "../redux/actions/schoolbus/busstaff/updatebusstaffAction";
 import { DeleteBusstaffInitiate } from "../redux/actions/schoolbus/busstaff/deletebusstaffAction";
+import { BASE_URL } from "../API/Constants";
 
 const DriverDashboard = () => {
   const dispatch = useDispatch();
@@ -14,123 +15,10 @@ const DriverDashboard = () => {
     dispatch(getAllBusstaffInitiate());
   }, []);
   console.log("i am all allbusesstaff", allbusesstaff);
-  const initialDriversData = [
-    {
-      id: "D001",
-      role: "Driver",
-      name: "John Doe",
-      dob: "1978-05-20",
-      license: "AB123456",
-      contact: "9876543210",
-      vehicle: "Bus - 12",
-      route: "Route 5",
-      experience: "10 years",
-      branch: "Main Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D002",
-      role: "Conductor",
-      name: "Jane Smith",
-      dob: "1984-08-10",
-      license: "CD789012",
-      contact: "8765432109",
-      vehicle: "Bus - 7",
-      route: "Route 2",
-      experience: "8 years",
-      branch: "City Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D003",
-      role: "Driver",
-      name: "Michael Brown",
-      dob: "1980-07-15",
-      license: "EF456789",
-      contact: "7654321098",
-      vehicle: "Bus - 15",
-      route: "Route 7",
-      experience: "12 years",
-      branch: "Westside Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D004",
-      role: "Conductor",
-      name: "Emily White",
-      dob: "1985-09-25",
-      license: "GH987654",
-      contact: "6543210987",
-      vehicle: "Bus - 9",
-      route: "Route 3",
-      experience: "7 years",
-      branch: "Main Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D005",
-      role: "Driver",
-      name: "Robert Green",
-      dob: "1975-06-30",
-      license: "IJ543210",
-      contact: "5432109876",
-      vehicle: "Bus - 18",
-      route: "Route 6",
-      experience: "15 years",
-      branch: "City Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D006",
-      role: "Conductor",
-      name: "Sophia Wilson",
-      dob: "1990-03-12",
-      license: "KL210987",
-      contact: "4321098765",
-      vehicle: "Bus - 5",
-      route: "Route 4",
-      experience: "5 years",
-      branch: "Westside Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D007",
-      role: "Driver",
-      name: "Daniel Harris",
-      dob: "1979-11-22",
-      license: "MN654321",
-      contact: "3210987654",
-      vehicle: "Bus - 20",
-      route: "Route 8",
-      experience: "14 years",
-      branch: "Main Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-    {
-      id: "D008",
-      role: "Conductor",
-      name: "Olivia Martinez",
-      dob: "1988-12-05",
-      license: "OP123456",
-      contact: "2109876543",
-      vehicle: "Bus - 10",
-      route: "Route 1",
-      experience: "9 years",
-      branch: "City Branch", // ✅ Assigned branch
-      profilePhoto: "https://via.placeholder.com/150",
-      licensePhoto: "https://via.placeholder.com/150",
-    },
-  ];
+
   const { selectedBranch } = useBranch(); // ✅ Get the selected branch
 
-  const [drivers, setDrivers] = useState(initialDriversData);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDriver, setSelectedDriver] = useState(null);
   // console.log(' iam mage',selectedDriver?.profilePhoto)
@@ -151,79 +39,117 @@ const DriverDashboard = () => {
 
   // Add Driver
   const handleAddDriver = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newDriver = {
-      // id: formData.get("id"),
-      role: formData.get("role"),
-      name: formData.get("name"),
-      dateofBirth: formData.get("dob"),
-      license: formData.get("license"),
-      contact: formData.get("contact"),
-      vehicle: formData.get("vehicle"),
-      route: formData.get("route"),
-      experience: formData.get("experience"),
-      email: formData.get('email'),
-      password: formData.get("password"),
-      profilePhoto:
-        formData.get("profilePhoto") && formData.get("profilePhoto").name
-          ? URL.createObjectURL(formData.get("profilePhoto"))
-          : "https://via.placeholder.com/150",
-      licensePhoto:
-        formData.get("licensePhoto") && formData.get("licensePhoto").name
-          ? URL.createObjectURL(formData.get("licensePhoto"))
-          : "https://via.placeholder.com/150",
-    };
-    // setDrivers([...drivers, newDriver]);
+  e.preventDefault();
 
-    dispatch(AddBusstaffInitiate(newDriver, (success) => {
-      if (success) {
-        console.log('add successful, fetching add student list.');
-        dispatch(getAllBusstaffInitiate());
-        closeAddModal();
-      } else {
-        console.error('Failed to add teachet.');
-      }
-    }))
+  const formData = new FormData(e.target);
 
-  };
+  const driverForm = new FormData();
+  driverForm.append("role", formData.get("role"));
+  driverForm.append("name", formData.get("name"));
+  driverForm.append("dateofBirth", formData.get("dob"));
+  driverForm.append("license", formData.get("license"));
+  driverForm.append("contact", formData.get("contact"));
+  driverForm.append("vehicle", formData.get("vehicle"));
+  driverForm.append("route", formData.get("route"));
+  driverForm.append("email", formData.get("email"));
+  driverForm.append("password", formData.get("password"));
 
-  // Edit Driver
+  // Attach files only if a file is selected
+  const profilePhoto = formData.get("profilePhoto");
+  if (profilePhoto && profilePhoto instanceof File && profilePhoto.name) {
+    driverForm.append("profilePhoto", profilePhoto);
+  }
+
+  const licensePhoto = formData.get("licensePhoto");
+  if (licensePhoto && licensePhoto instanceof File && licensePhoto.name) {
+    driverForm.append("licensePhoto", licensePhoto);
+  }
+
+  // Dispatch action to Redux
+  dispatch(AddBusstaffInitiate(driverForm, (success) => {
+    if (success) {
+      console.log('Driver added successfully. Refreshing list...');
+      dispatch(getAllBusstaffInitiate());
+      closeAddModal();
+    } else {
+      console.error('Failed to add driver.');
+    }
+  }));
+};
+
+
+  // // Edit Driver
+  // const handleEditDriver = (e) => {
+  //   e.preventDefault();
+  //   const formData = new FormData(e.target);
+  //   const updatedDriver = {
+  //     _id: selectedDriver._id,
+  //     role: formData.get("role"),
+  //     name: formData.get("name"),
+  //     dateofBirth: formData.get("dob"),
+  //     license: formData.get("license"),
+  //     contact: formData.get("contact"),
+  //     vehicle: formData.get("vehicle"),
+  //     route: formData.get("route"),
+  //     // experience: formData.get("experience"),
+  //     email: formData.get('email'),
+  //     // password: formData.get("password"),
+  //     profilePhoto:
+  //       formData.get("profilePhoto") && formData.get("profilePhoto").name
+  //         ? URL.createObjectURL(formData.get("profilePhoto"))
+  //         : selectedDriver.profilePhoto,
+  //     licensePhoto:
+  //       formData.get("licensePhoto") && formData.get("licensePhoto").name
+  //         ? URL.createObjectURL(formData.get("licensePhoto"))
+  //         : selectedDriver.licensePhoto,
+  //   };
+  //   dispatch(UpdateBusstaffInitiate(updatedDriver, (success) => {
+  //     if (success) {
+  //       console.log('Delete successful, fetching updated teacher list.');
+  //       dispatch(getAllBusstaffInitiate());
+  //       closeEditModal();
+  //     } else {
+  //       console.error('Failed to update student.');
+  //     }
+  //   }))
+
+  // };
   const handleEditDriver = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const updatedDriver = {
-      _id: selectedDriver._id,
-      role: formData.get("role"),
-      name: formData.get("name"),
-      dateofBirth: formData.get("dob"),
-      license: formData.get("license"),
-      contact: formData.get("contact"),
-      vehicle: formData.get("vehicle"),
-      route: formData.get("route"),
-      // experience: formData.get("experience"),
-      email: formData.get('email'),
-      // password: formData.get("password"),
-      profilePhoto:
-        formData.get("profilePhoto") && formData.get("profilePhoto").name
-          ? URL.createObjectURL(formData.get("profilePhoto"))
-          : selectedDriver.profilePhoto,
-      licensePhoto:
-        formData.get("licensePhoto") && formData.get("licensePhoto").name
-          ? URL.createObjectURL(formData.get("licensePhoto"))
-          : selectedDriver.licensePhoto,
-    };
-    dispatch(UpdateBusstaffInitiate(updatedDriver, (success) => {
-      if (success) {
-        console.log('Delete successful, fetching updated teacher list.');
-        dispatch(getAllBusstaffInitiate());
-        closeEditModal();
-      } else {
-        console.error('Failed to update student.');
-      }
-    }))
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const driverForm = new FormData();
 
-  };
+  driverForm.append("_id", selectedDriver._id);
+  driverForm.append("role", formData.get("role"));
+  driverForm.append("name", formData.get("name"));
+  driverForm.append("dateofBirth", formData.get("dob"));
+  driverForm.append("license", formData.get("license"));
+  driverForm.append("contact", formData.get("contact"));
+  driverForm.append("vehicle", formData.get("vehicle"));
+  driverForm.append("route", formData.get("route"));
+  driverForm.append("email", formData.get("email"));
+
+  const profilePhoto = formData.get("profilePhoto");
+  if (profilePhoto && profilePhoto instanceof File && profilePhoto.name) {
+    driverForm.append("profilePhoto", profilePhoto);
+  }
+
+  const licensePhoto = formData.get("licensePhoto");
+  if (licensePhoto && licensePhoto instanceof File && licensePhoto.name) {
+    driverForm.append("licensePhoto", licensePhoto);
+  }
+
+  dispatch(UpdateBusstaffInitiate(driverForm, (success) => {
+    if (success) {
+      console.log("Update successful, fetching updated bus staff list.");
+      dispatch(getAllBusstaffInitiate());
+      closeEditModal();
+    } else {
+      console.error("Failed to update bus staff.");
+    }
+  }));
+};
+
 
   // Delete Driver
   const confirmDeleteDriver = () => {
@@ -361,13 +287,12 @@ const DriverDashboard = () => {
                 </tr>
               )) : (
                 <tr>
-                  <td
-                    colSpan="4"
-                    className="px-6 py-3 text-center text-gray-600"
-                  >
+                <td colSpan="9" >
+                  <div className="flex items-center justify-center h-20 text-gray-500">
                     No bus staff found.
-                  </td>
-                </tr>
+                  </div>
+                </td>
+              </tr>
               ) : null}
 
               {searchQuery ? filteredBusesstaff?.length > 0 ? filteredBusesstaff?.map((driver) => (
@@ -426,16 +351,21 @@ const DriverDashboard = () => {
             <div className="flex justify-center gap-4 mb-6 flex-wrap">
               {/* Check if the driver has a profile photo, otherwise display a placeholder */}
               <img
-                src={
-                  selectedDriver.profilePhoto || "/path/to/default/profile.png"
-                } // Provide a default image path
+                  src={
+                        selectedDriver?.profilePhoto
+                          ? `${BASE_URL}busstaffimages/${selectedDriver.profilePhoto}`
+                          : "https://via.placeholder.com/150"
+                      }
+                    // Provide a default image path
                 alt="Profile"
                 className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover"
               />
               <img
-                src={
-                  selectedDriver.licensePhoto || "/path/to/default/license.png"
-                } // Provide a default image path
+               src={
+                  selectedDriver?.licensePhoto
+                    ? `${BASE_URL}busstaffimages/${selectedDriver.licensePhoto}`
+                    : "https://via.placeholder.com/150"
+                }// Provide a default image path
                 alt="License"
                 className="w-32 h-16 sm:w-48 sm:h-24 object-cover"
               />

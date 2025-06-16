@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Upload, Add, Download, Edit, Delete } from "@mui/icons-material";
 import { useBranch } from "../Pages/Branches";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllnonTeachersInitiate } from "../redux/actions/staff/nonteachingstaff/getnonteachingstaffAction";
 import { UpdateNonteacherInitiate } from "../redux/actions/staff/nonteachingstaff/updatenonteachingstaffAction";
 import { DeleteNonteacherInitiate } from "../redux/actions/staff/nonteachingstaff/deletenonteachingstaffAction";
+import { UploadNonTeachingStaffCsvInitiate } from "../redux/actions/staff/nonteachingstaff/uploadNonTeachingStaffCsvAction";
+import { CircularProgress, Tooltip } from "@mui/material";
 
 const NonTeachingStaff = () => {
   const dispatch = useDispatch();
@@ -14,257 +16,16 @@ const NonTeachingStaff = () => {
   useEffect(() => {
     dispatch(getAllnonTeachersInitiate());
   }, []);
-  console.log("i am all allnonteachers", allnonteachers);
-  const [staff, setStaff] = useState([
-    {
-      id: "NT12345",
-      name: "Davis",
-      designation: "Clerk",
-      gender: "Male",
-      department: "Administration",
-      experience: "5 years",
-      joiningDate: "2019-03-19",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "davis@example.com",
-      mobile: "9123456789",
-      address: "123 Lane",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    },
-    {
-      id: "NT54321",
-      name: "Miller",
-      designation: "Librarian",
-      gender: "Female",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-01",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "miller@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "City Branch", // ✅ Added branch
-    },
-    {
-      id: "NT12346",
-      name: "David",
-      designation: "Security",
-      gender: "Male",
-      department: "Administration",
-      experience: "4 years",
-      joiningDate: "2020-03-15",
-      maritalStatus: "Single",
-      emergencyContact: "9852512358",
-      email: "david@example.com",
-      mobile: "9123456789",
-      address: "123 Lane",
-      city: "Vizag",
-      branch: "Westside Branch", // ✅ Added branch
-    },
-    {
-      id: "NT54320",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    },
-    {
-      id: "NT54322",
-      name: "Anderson",
-      designation: "Accountant",
-      gender: "Female",
-      department: "Finance",
-      experience: "6 years",
-      joiningDate: "2018-05-20",
-      maritalStatus: "Single",
-      emergencyContact: "9845123456",
-      email: "anderson@example.com",
-      mobile: "9876543210",
-      address: "789 Avenue",
-      city: "Vizag",
-      branch: "City Branch", // ✅ Added branch
-    },
-    {
-      id: "NT54323",
-      name: "William",
-      designation: "Technician",
-      gender: "Male",
-      department: "IT Support",
-      experience: "5 years",
-      joiningDate: "2019-09-10",
-      maritalStatus: "Married",
-      emergencyContact: "9988776655",
-      email: "william@example.com",
-      mobile: "9234567890",
-      address: "321 Road",
-      city: "Vizag",
-      branch: "Westside Branch", // ✅ Added branch
-    },
-    {
-      id: "NT54301",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54302",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54303",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54304",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54305",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54306",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54307",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    },
-    {
-      id: "NT54308",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54309",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    }, {
-      id: "NT54310",
-      name: "Steler",
-      designation: "Librarian",
-      gender: "Male",
-      department: "Library",
-      experience: "3 years",
-      joiningDate: "2021-07-12",
-      maritalStatus: "Married",
-      emergencyContact: "9852512358",
-      email: "steler@example.com",
-      mobile: "9988776655",
-      address: "456 Street",
-      city: "Vizag",
-      branch: "Main Branch", // ✅ Added branch
-    },
-  ]);
+  console.log("i am all allnonteachers", allnonteachers);  const inputRef = useRef();
+    const { loading } = useSelector((state) => state.nonteachingStaffUpload);
+
+  
+
+  const handleIconClick = () => {
+    inputRef.current.click(); // trigger hidden file input
+  };
+
+
   const [formVisible, setFormVisible] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const { selectedBranch } = useBranch(); // Get the selected branch
@@ -290,7 +51,7 @@ const NonTeachingStaff = () => {
   const navigate = useNavigate();
 
   const itemsPerPage = 10;
-  const branchSpecificTeachers = staff.filter((staff) => staff.branch === selectedBranch);
+
   const generateCSV = () => {
     const headers = [
       "ID",
@@ -304,7 +65,7 @@ const NonTeachingStaff = () => {
       "Address",
       "City",
     ];
-    const rows = staff.map((s) => [
+    const rows = allnonteachers.map((s) => [
       s.id,
       s.name,
       s.designation,
@@ -484,6 +245,22 @@ const NonTeachingStaff = () => {
   // Get current page data
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentStaff = filteredStaff.slice(startIndex, startIndex + itemsPerPage);
+  const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (!file || file.type !== "text/csv") {
+        alert("Please select a valid CSV file.");
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append("file", file);
+  
+      dispatch(UploadNonTeachingStaffCsvInitiate(formData, (success) => {
+        if (success) {
+           dispatch(getAllnonTeachersInitiate());
+        }
+      }));
+    };
 
 
   return (
@@ -519,7 +296,22 @@ const NonTeachingStaff = () => {
 
         {/* Action Icons */}
         <div className="flex justify-start md:justify-end gap-4 text-lg sm:text-xl">
-          <Upload className="text-blue-600 cursor-pointer hover:text-blue-800" />
+          <input
+                  type="file"
+                  accept=".csv"
+                  ref={inputRef}
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+                <Tooltip title="Upload CSV">
+                  <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
+                    {loading ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      <Upload className="text-blue-600 hover:text-blue-800" />
+                    )}
+                  </span>
+                </Tooltip>
           <Add
             className="text-green-600 cursor-pointer hover:text-green-800"
             onClick={() => setFormVisible(true)}

@@ -27,6 +27,7 @@ import {
 import { Edit, Delete, Add } from "@mui/icons-material";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import Loader from "../Components/loader";
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -60,7 +61,10 @@ const TeacherTimetable = () => {
   const { timetableList, loading, error } = useSelector(
     (state) => state.teachersTimetableData
   );
-
+console.log("Timetable List:", timetableList); // Debug log
+useEffect(() => {
+  console.log("🔥 timetableList", timetableList);
+}, [timetableList]);
   useEffect(() => {
     dispatch(GetAllTeachersTimetableInitiate());
   }, [dispatch]);
@@ -76,16 +80,24 @@ const TeacherTimetable = () => {
     setNewEntry({ ...newEntry, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    if (editMode) {
-      dispatch(UpdateTeachersTimetableInitiate(newEntry));
-    } else {
-      dispatch(AddTeachersTimetableInitiate(newEntry));
-    }
-    setOpenModal(false);
-    setNewEntry(initialEntryState);
-    setEditMode(false);
-  };
+ const handleSave = () => {
+  if (editMode) {
+    dispatch(UpdateTeachersTimetableInitiate(newEntry, (success) => {
+      if (success) {
+        dispatch(GetAllTeachersTimetableInitiate()); // Refresh list
+        handleModalClose(); // Close modal on success
+      }
+    }));
+  } else {
+    dispatch(AddTeachersTimetableInitiate(newEntry, (success) => {
+      if (success) {
+        dispatch(GetAllTeachersTimetableInitiate()); // Refresh list
+        handleModalClose(); // Close modal on success
+      }
+    }));
+  }
+};
+
 
   const handleEdit = (entry) => {
     setNewEntry(entry);
@@ -93,9 +105,26 @@ const TeacherTimetable = () => {
     setOpenModal(true);
   };
 
-  const handleDelete = (id) => {
-    dispatch(DeleteTeachersTimetableInitiate(id));
-  };
+ const handleDelete = (id) => {
+  if (window.confirm("Are you sure you want to delete this entry?")) {
+    dispatch(DeleteTeachersTimetableInitiate(id, (success) => {
+      if (success) {
+        dispatch(GetAllTeachersTimetableInitiate()); // Refresh list
+      }
+    }));
+  }
+};
+
+  const handleModalClose = () => {
+  setOpenModal(false);
+  setEditMode(false);
+  setNewEntry(initialEntryState); // Reset form fields
+};
+if (loading) {
+ 
+return <Loader />;
+}
+
 
   return (
     <Container sx={{ mt: 3 }}>
@@ -120,7 +149,7 @@ const TeacherTimetable = () => {
       </Tooltip>
 
       {/* Add/Edit Modal */}
-      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+      <Modal open={openModal} onClose={handleModalClose}>
         <Box
           sx={{
             position: "absolute",

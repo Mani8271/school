@@ -56,6 +56,23 @@ import AddCommentReducer from "./comments/addCommentReducer";
 import GetAllCommentsReducer from "./comments/getCommentsReducer";
 import GetAllNotificationsReducer from "./notifications/getAllNotificationsReducer";
 import teachersTimetableReducer from "./staff/teachingstaff/teachersTimetableReducer";
+import staffLeaveRequestsReducer from "./staff/teachingstaff/staffLeaveRequestsReducer";
+import staffDailyAttendanceReducer from "./staff/teachingstaff/staffDailyAttendenceReducer";
+import UploadTeachingStaffCsvReducer from "./staff/teachingstaff/uploadTeachingStaffCsvReducer";
+import UploadNonTeachingStaffCsvReducer from "./staff/nonteachingstaff/uploadNonTeachingStaffCsvReducer";
+import { getNonTeachingMonthlyAttendanceApi } from "../apis/staff/nonteachingsatff/ntMonthlyAttendenceApi";
+import NonTeachingMonthlyAttendanceReducer from "./staff/nonteachingstaff/ntMonthlyAttendenceReducer";
+import AddExamresultsReducer from "./examresults/addExamresultsReducer";
+import DeleteExamresultsReducer from "./examresults/deleteExamresultsReducer";
+import UpdateexamresultsReducer from "./examresults/updateExamresultsReducer";
+import GetAllExamresultsReducer from "./examresults/getAllexamresultsReducer";
+import UploadExamresultsCsvReducer from "./uploadcsvforexamresults/uploadcsvforexamresultsReducer";
+import AddBusassignReducer from "./busassigntostudent/addBusassignReducer";
+import DeleteBusassignReducer from "./busassigntostudent/deleteBusassignReducer";
+import UpdatebusassignReducer from "./busassigntostudent/updateBusassignReducer";
+import GetAllBusassignReducer from "./busassigntostudent/getAllbusassignReducer";
+import StudentMonthlyAttendanceReducer from "./students/getmonthlyattendenceReducer";
+import UploadStudentsCsvReducer from "./students/uploadstudentcsvReducer";
 
 
 
@@ -141,6 +158,28 @@ const rootReducer = combineReducers({
 
    //teacher timetable
     teachersTimetableData: teachersTimetableReducer,
+ // staff leave requests
+ leaveRequestsData: staffLeaveRequestsReducer,
+// staff daily attendance
+   staffDailyAttendance: staffDailyAttendanceReducer,
+   // upload teaching staff csv
+     teachingStaffUpload: UploadTeachingStaffCsvReducer,
+     // non-teaching staff upload
+     nonteachingStaffUpload: UploadNonTeachingStaffCsvReducer,
+ // non-teaching monthly attendance
+     getnonteachingmonthlyattendence: NonTeachingMonthlyAttendanceReducer,
+     // add exam results
+  addexamresults: AddExamresultsReducer,
+  deleteexamresults: DeleteExamresultsReducer,
+  updateexamresults: UpdateexamresultsReducer,
+  getallexamresults: GetAllExamresultsReducer,
+   csvexamresults: UploadExamresultsCsvReducer,
+    addbusassign: AddBusassignReducer,
+  deletebusassign: DeleteBusassignReducer,
+  updatebusassign: UpdatebusassignReducer,
+  getallbusassign: GetAllBusassignReducer,
+  studentmontlyattendence: StudentMonthlyAttendanceReducer,
+  uploadstudent: UploadStudentsCsvReducer,
 
 });
 export default rootReducer;

@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useBranch } from "../Pages/Branches";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-
+import { CircularProgress, Tooltip } from "@mui/material";
 import Select from "react-select";
 import {
   FaPlus,
@@ -12,11 +12,26 @@ import {
   FaFileDownload,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllExamresultsInitiate } from "../redux/actions/Examresults/getExamresultsAction";
+import { AddExamresultsInitiate } from "../redux/actions/Examresults/addExamresultsAction";
+import { UpdateExamresultsInitiate } from "../redux/actions/Examresults/updateExamresultsAction";
+import { DeleteExamresultsInitiate } from "../redux/actions/Examresults/deleteExamresultsAction";
+import { UploadexamresultsCsvInitiate } from "../redux/actions/uploadcsvforexamresults/uploadcsvforexamresultsAction";
+
 
 const ExamResult = () => {
+  const dispatch = useDispatch();
+  const { data: examresults = [] } = useSelector((state) => state.getallexamresults.examresults || {});
+  useEffect(() => {
+    dispatch(getAllExamresultsInitiate());
+  }, [dispatch]);
+  console.log("i am all examresults", examresults);
+
   const [showModal, setShowModal] = useState(false);
   const [editIndex, setEditIndex] = useState(null); // To track which row is being edited
   const navigate = useNavigate();
+  
 
   const [modalData, setModalData] = useState({
     studentId: "",
@@ -78,8 +93,9 @@ const ExamResult = () => {
   const [entriesToShow, setEntriesToShow] = useState(5); // Default number of rows to show
   const [currentPage, setCurrentPage] = useState(1);
   const { selectedBranch } = useBranch();
-
-  const branchSpecificData = examData.filter(
+  const inputRef = useRef();
+  const { loading } = useSelector((state) => state.csvexamresults);
+  const branchSpecificData = examresults.filter(
     (data) => data.branch === selectedBranch
   );
 
@@ -90,7 +106,7 @@ const ExamResult = () => {
   const [studentIdFilter, setStudentIdFilter] = useState("");
 
   // Filtered data for dropdowns
-  const classesByExamType = examData.filter(
+  const classesByExamType = examresults.filter(
     (data) => data.examType === examTypeFilter
   );
   const sectionsByClass = classesByExamType.filter(
@@ -103,33 +119,65 @@ const ExamResult = () => {
   const handleModalSubmit = () => {
     if (editIndex !== null) {
       // Update existing data
-      const updatedData = [...examData];
-      updatedData[editIndex] = modalData;
-      setExamData(updatedData);
+      // const updatedData = [...examData];
+      // updatedData[editIndex] = modalData;
+      // setExamData(updatedData);
+      dispatch(UpdateExamresultsInitiate(modalData, (success) => {
+        if (success) {
+          console.log('add successful, fetching add student list.');
+          dispatch(getAllExamresultsInitiate());
+          setShowModal(false);
+          setEditIndex(null); // Reset edit index
+          setModalData({
+            studentId: "",
+            studentName: "",
+            examType: "",
+            class: "",
+            section: "",
+            lang1: "",
+            lang2: "",
+            english: "",
+            maths: "",
+            science: "",
+            social: "",
+          });
+        } else {
+          console.error('Failed to add teachet.');
+        }
+      }))
     } else {
       // Add new data
-      setExamData([...examData, modalData]);
+      // setExamData([...examData, modalData]);
+      dispatch(AddExamresultsInitiate(modalData, (success) => {
+        if (success) {
+          console.log('add successful, fetching add student list.');
+          dispatch(getAllExamresultsInitiate());
+          setShowModal(false);
+          setEditIndex(null); // Reset edit index
+          setModalData({
+            studentId: "",
+            studentName: "",
+            examType: "",
+            class: "",
+            section: "",
+            lang1: "",
+            lang2: "",
+            english: "",
+            maths: "",
+            science: "",
+            social: "",
+          });
+        } else {
+          console.error('Failed to add teachet.');
+        }
+      }))
     }
-    setShowModal(false);
-    setEditIndex(null); // Reset edit index
-    setModalData({
-      studentId: "",
-      studentName: "",
-      examType: "",
-      class: "",
-      section: "",
-      lang1: "",
-      lang2: "",
-      english: "",
-      maths: "",
-      science: "",
-      social: "",
-    });
+
   };
 
   const handleEdit = (index) => {
     setEditIndex(index);
-    setModalData(examData[index]);
+    setModalData(examresults[index]);
     setShowModal(true);
   };
 
@@ -137,20 +185,30 @@ const ExamResult = () => {
   //   setExamData(examData.filter((_, i) => i !== index));
   // };
 
-  const handleDelete = (index) => {
+  const handleDelete = (id) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this entry?");
     if (isConfirmed) {
-      setExamData(examData.filter((_, i) => i !== index));
+      // setExamData(examData.filter((_, i) => i !== index));
+      dispatch(
+        DeleteExamresultsInitiate({ _id: id }, (success) => {
+          if (success) {
+            console.log('Delete successful, fetching updated student list.');
+            dispatch(getAllExamresultsInitiate());
+          } else {
+            console.error('Failed to delete student.');
+          }
+        })
+      );
     }
   };
-  
+
   // Pagination logic
   const startIndex = (currentPage - 1) * entriesToShow;
-  const paginatedData = examData.slice(startIndex, startIndex + entriesToShow);
-  const totalPages = Math.ceil(branchSpecificData.length / entriesToShow);
+  const paginatedData = examresults.slice(startIndex, startIndex + entriesToShow);
+  const totalPages = Math.ceil(examresults.length / entriesToShow);
 
   // Filtered Data based on dropdowns
-  const filteredData = branchSpecificData
+  const filteredData = examresults
     .filter(
       (data) =>
         (examTypeFilter ? data.examType === examTypeFilter : true) &&
@@ -162,7 +220,7 @@ const ExamResult = () => {
 
   // Prepare the options for the Select components
   const examTypeOptions = [
-    ...new Set(examData.map((data) => data.examType)),
+    ...new Set(examresults.map((data) => data.examType)),
   ].map((examType) => ({ value: examType, label: examType }));
 
   const classOptions = [
@@ -190,29 +248,48 @@ const ExamResult = () => {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      setExamData([...examData, ...jsonData]); // Use examData instead of timetableData
+      setExamData([...examresults, ...jsonData]); // Use examData instead of timetableData
     };
     reader.readAsText(file);
   };
 
   const handleDownloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(examData); // Use examData instead of timetableData
+    const worksheet = XLSX.utils.json_to_sheet(examresults); // Use examData instead of timetableData
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Exam Results");
     XLSX.writeFile(workbook, "Exam_Results.xlsx");
   };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file || file.type !== "text/csv") {
+      alert("Please select a valid CSV file.");
+      return;
+    }
 
+    const formData = new FormData();
+    formData.append("file", file);
+
+    dispatch(UploadexamresultsCsvInitiate(formData, (success) => {
+      if (success) {
+        dispatch(getAllExamresultsInitiate());
+      }
+    }));
+  };
+
+  const handleIconClick = () => {
+    inputRef.current.click(); // trigger hidden file input
+  };
   return (
     <div className="p-6">
       <div className="mb-4 text-left">
         {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)} // Navigate to the previous page
-        className="flex items-center text-gray-700 hover:text-gray-900 font-semibold mb-4"
-      >
-        <IoArrowBack className="mr-2 text-2xl" /> {/* Back Icon */}
-        Back
-      </button>
+        <button
+          onClick={() => navigate(-1)} // Navigate to the previous page
+          className="flex items-center text-gray-700 hover:text-gray-900 font-semibold mb-4"
+        >
+          <IoArrowBack className="mr-2 text-2xl" /> {/* Back Icon */}
+          Back
+        </button>
         <h1 className="text-2xl font-bold">Exam Results</h1>
       </div>
 
@@ -231,17 +308,17 @@ const ExamResult = () => {
 
       {/* Show Entries Dropdown */}
       <div className="flex items-center gap-2">
-          <label className="text-sm">Show Entries:</label>
-          <select
-            value={entriesToShow}
-            onChange={(e) => setEntriesToShow(Number(e.target.value))}
-            className="px-2 py-1 border rounded w-[80px] text-sm"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </div>
+        <label className="text-sm">Show Entries:</label>
+        <select
+          value={entriesToShow}
+          onChange={(e) => setEntriesToShow(Number(e.target.value))}
+          className="px-2 py-1 border rounded w-[80px] text-sm"
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={15}>15</option>
+        </select>
+      </div>
 
       <div className="flex flex-wrap items-center gap-4 mt-4 mb-4 lg:flex-nowrap">
         {/* Exam Type Dropdown with Search */}
@@ -292,9 +369,25 @@ const ExamResult = () => {
             onChange={handleBulkUpload}
             style={{ display: "none" }}
           />
-          <button title="Upload CSV File" onClick={() => fileInputRef.current.click()}>
+          {/* <button title="Upload CSV File" onClick={() => fileInputRef.current.click()}>
             <FaUpload className="text-green-600 text-xl cursor-pointer hover:text-green-700" />
-          </button>
+          </button> */}
+          <input
+            type="file"
+            accept=".csv"
+            ref={inputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+          <Tooltip title="Upload Teaching Staff CSV">
+            <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
+              {loading ? (
+                <CircularProgress size={24} />
+              ) : (
+                <FaUpload className="text-blue-600 hover:text-blue-800" />
+              )}
+            </span>
+          </Tooltip>
 
           <button
             className="flex items-center gap-2 px-4 py-2 text-black bg-white rounded hover:bg-gray-200"
@@ -341,10 +434,10 @@ const ExamResult = () => {
                 percentage >= 90
                   ? "A"
                   : percentage >= 75
-                  ? "B"
-                  : percentage >= 50
-                  ? "C"
-                  : "D";
+                    ? "B"
+                    : percentage >= 50
+                      ? "C"
+                      : "D";
 
               return (
                 <tr key={index} className="border-b text-sm md:text-base">
@@ -366,7 +459,7 @@ const ExamResult = () => {
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={() => handleDelete(index)}
+                      onClick={() => handleDelete(data?._id)}
                     >
                       <FaTrash />
                     </button>
@@ -388,7 +481,7 @@ const ExamResult = () => {
         >
           Previous
         </button>
-          
+
         <button
           className="px-4 py-2 bg-gray-200 rounded"
           onClick={() =>

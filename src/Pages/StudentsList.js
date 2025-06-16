@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Upload, Add, Download, Edit, Delete, Close, NestCamWiredStand } from "@mui/icons-material";
 import { useBranch } from "../Pages/Branches";
 import { useNavigate } from "react-router-dom";
@@ -9,14 +9,18 @@ import { UpdateStudentInitiate } from "../redux/actions/student/updatestudentAct
 import { DeleteStudentInitiate } from "../redux/actions/student/deletestudentAction";
 import { GetAllClassesInitiate } from "../redux/actions/class/getAllClassesAction";
 import { GetAllSectionsInitiate } from "../redux/actions/class/getAllSectionsAction";
-import { all } from "axios";
+import { CircularProgress, Tooltip } from "@mui/material";
+import { UploadstudentsCsvInitiate } from "../redux/actions/student/uploadstudentcsvAction";
 
 const StudentsList = () => {
   const dispatch = useDispatch();
   const [sectionOptions, setSectionOptions] = useState(["All Sections"]);
+  const inputRef = useRef();
+    const { loading } = useSelector((state) => state.uploadstudent)
 
   const { data: allstudents = [] } = useSelector((state) => state.getallstudents.students || {});
-   const sections2 = useSelector((state) => state?.getsections?.sections?.data || {});
+  //  const sections2 = useSelector((state) => state?.getsections?.sections?.data || {});
+    const sections2 = useSelector((state) => state?.getsections?.sections || []);
  
     console.log(sections2, "sections2")
     
@@ -27,7 +31,7 @@ const StudentsList = () => {
   const [formVisible, setFormVisible] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null); // Track which student is being edited
   const [newStudent, setNewStudent] = useState({
-    _id: "", studentName: "", rollno: "", gender: "", bloodgroup: "", parentName: "", relation: "", class: "", section: "", address: "", city: "",
+    _id: "", studentName: "", rollno: "", gender: "", username: "", bloodgroup: "", parentName: "", relation: "", class: "", section: "", address: "", city: "",
     dateofbirth: "", email: "", mobile: "", ProfilePicture: null, password: ""
   });
   console.log("editingStudent", editingStudent)
@@ -45,8 +49,9 @@ const StudentsList = () => {
 }, []);
 
   // Access classes from Redux state
-  const { data: classes = [], loading: classesLoading } =
-    useSelector((state) => state.getclasses.classes || {});
+  // const { data: classes = [], loading: classesLoading } =
+  //   useSelector((state) => state.getclasses.classes || {});
+    const classes = useSelector((state) => state.getclasses.classes || []);
     const [filteredStudents, setFilteredStudents] = useState([]);
 
   const classOptions = ["All Classes", ...classes.map((cls) => cls.className)];
@@ -142,6 +147,7 @@ const StudentsList = () => {
     formdata.append("section", newStudent.section.toLowerCase());
     formdata.append("address", newStudent.address);
     formdata.append("city", newStudent.city);
+    formdata.append("username", newStudent.username);
     formdata.append("dateofbirth", newStudent.dateofbirth);
     formdata.append("email", newStudent.email);
     formdata.append("mobile", newStudent.mobile);
@@ -192,7 +198,8 @@ const StudentsList = () => {
       !newStudent.relation?.trim() ||
       !newStudent?.dateofbirth ||
       !newStudent?.rollno ||
-      !newStudent?.password
+      !newStudent?.password||
+      !newStudent?.username
       // ||!newStudent.email
     ) {
       alert("Please fill in all required fields.");
@@ -365,7 +372,25 @@ useEffect(() => {
     page * rowsPerPage + rowsPerPage
   );
 
+   const handleIconClick = () => {
+    inputRef.current.click(); // trigger hidden file input
+  };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file || file.type !== "text/csv") {
+      alert("Please select a valid CSV file.");
+      return;
+    }
+     
+    const formData = new FormData();
+    formData.append("file", file);
 
+    dispatch(UploadstudentsCsvInitiate(formData, (success) => {
+      if (success) {
+         dispatch(getAllStudentsInitiate());
+      }
+    }));
+  };
 
   return (
     <div className="p-4 bg-gray-100 min-h-screen max-w-7xl mx-auto">
@@ -437,7 +462,22 @@ useEffect(() => {
 
         {/* Upload, Add, and Download Icons */}
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-4">
-          <Upload className="text-blue-600 cursor-pointer hover:text-blue-800 sm:text-xl" />
+          <input
+            type="file"
+            accept=".csv"
+            ref={inputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+          <Tooltip title="Upload Teaching Staff CSV">
+            <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
+              {loading ? (
+                <CircularProgress size={24} />
+              ) : (
+                <Upload className="text-blue-600 hover:text-blue-800" />
+              )}
+            </span>
+          </Tooltip>'
           <Add className="text-green-600 cursor-pointer hover:text-green-800 sm:text-xl" onClick={() => setFormVisible(true)} />
           <Download className="text-purple-600 cursor-pointer hover:text-purple-800 sm:text-xl" onClick={handleDownload} />
         </div>
@@ -632,7 +672,7 @@ useEffect(() => {
               {/* <th className="px-4 py-2 text-left border">City</th> */}
               <th className="px-4 py-2 text-left border text-nowrap">Date of Birth</th>
               <th className="px-4 py-2 text-left border text-nowrap">Blood Group</th>
-              <th className="border px-4 py-2 text-left">User Name</th>
+              <th className="border px-4 py-2 text-left">User Nam</th>
               <th className="border px-4 py-2 text-left">Password</th>
               {/* <th className="px-4 py-2 text-left border">Email</th> */}
               <th className="px-4 py-2 text-left border">Guardian Name</th>
@@ -671,7 +711,7 @@ useEffect(() => {
                     <span className="font-semibold md:hidden">Blood Group: </span> {student.bloodgroup}
                   </td>
                   <td className="border px-4 py-2 md:table-cell block">
-                    <span className="font-semibold md:hidden">Username: </span> {student.studentName}
+                    <span className="font-semibold md:hidden">Username: </span> {student.username}
                   </td>
                   <td className="border px-4 py-2 md:table-cell block">
                     <span className="font-semibold md:hidden">Password: </span> {"*********"}

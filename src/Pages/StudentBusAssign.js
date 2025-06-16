@@ -4,8 +4,19 @@ import { Edit, Delete, PersonAdd } from "@mui/icons-material"; // Import icons f
 import { useBranch } from "./Branches"; // Assuming branch selection is managed globally
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllBusassignInitiate } from "../redux/actions/Assignbustostudent/getbusassignAction";
+import { AddBusassignInitiate } from "../redux/actions/Assignbustostudent/addbusassignAction";
+import { UpdateBusassignInitiate } from "../redux/actions/Assignbustostudent/updatebusassignAction";
+import { DeleteBusassignInitiate } from "../redux/actions/Assignbustostudent/deletebusassginAction";
 
 const StudentBusAssign = () => {
+  const dispatch = useDispatch();
+  const { data: allbusassigned = [] } = useSelector((state) => state.getallbusassign.busassigned || {});
+  useEffect(() => {
+    dispatch(getAllBusassignInitiate());
+  }, [dispatch]);
+  console.log("i am all allbusassigned", allbusassigned);
   const [openModal, setOpenModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { selectedBranch } = useBranch();
@@ -15,8 +26,9 @@ const StudentBusAssign = () => {
     studentName: "",
     studentClass: "",
     route: "",
-    id: "", 
-    busNumber: "",
+    student_id: "",
+    bus_number: "",
+    _id: ""
   });
 
   const [studentsData, setStudentsData] = useState([
@@ -26,7 +38,7 @@ const StudentBusAssign = () => {
     { id: "S004", studentName: "David", studentClass: "Class 4", route: "Route A", busNumber: "Bus 104" },
     { id: "S005", studentName: "Eve", studentClass: "Class 5", route: "Route B", busNumber: "Bus 105" },
   ]);
-  
+
   const [isEditing, setIsEditing] = useState(false); // To track if we're editing
 
   // Pagination state
@@ -46,7 +58,7 @@ const StudentBusAssign = () => {
 
   // Modal open/close handlers
   const handleOpenModal = (student = null) => {
-    setFormData(student ? student : { studentName: "", studentClass: "", route: "", id: "", busNumber: "" });
+    setFormData(student ? student : { studentName: "", studentClass: "", route: "", student_id: "", bus_number: "" });
     setIsEditing(!!student);
     setOpenModal(true);
   };
@@ -64,13 +76,13 @@ const StudentBusAssign = () => {
   // Assign or update student to a bus
   // const handleAssignStudent = () => {
   //   if (!formData.studentName || !formData.studentClass || !formData.route || !formData.busNumber || !formData.id) return;
-  
+
   //   const isDuplicateID = studentsData.some((student) => student.id === formData.id);
   //   if (!isEditing && isDuplicateID) {
   //     alert("A student with this ID already exists!");
   //     return;
   //   }
-  
+
   //   setStudentsData((prevStudents) =>
   //     isEditing
   //       ? prevStudents.map((student) => (student.id === formData.id ? { ...student, ...formData } : student))
@@ -94,33 +106,88 @@ const StudentBusAssign = () => {
 
   const handleAssignStudent = (event) => {
     event.preventDefault(); // Prevent page reload
-  
-    if (!formData.studentName || !formData.studentClass || !formData.route || !formData.busNumber || !formData.id) {
+    console.log()
+    if (!formData.studentName || !formData.studentClass || !formData.route || !formData.bus_number || !formData.student_id) {
       alert("Please fill in all fields!");
       return; // Exit function, keeping the modal open
     }
-  
-    const isDuplicateID = studentsData.some((student) => student.id === formData.id && student.id !== (isEditing ? formData.id : ""));
-    if (!isEditing && isDuplicateID) {
-      alert("A student with this ID already exists!");
-      return; // Exit function, keeping the modal open
+    // const formdata = new FormData();
+    // formdata.append("studentName", formData.studentName);
+    // formdata.append("studentClass", formData.studentClass);
+    // formdata.append("route", formData.route);
+    // formdata.append("bus_number", formData.bus_number);
+    // formdata.append("student_id", formData.student_id);
+    const formdata = {
+      studentName: formData.studentName,
+      studentClass: formData.studentClass,
+      route: formData.route,
+      bus_number: formData.bus_number,
+      student_id: formData.student_id
     }
-  
-    setStudentsData((prevStudents) =>
-      isEditing
-        ? prevStudents.map((student) => (student.id === formData.id ? { ...student, ...formData } : student))
-        : [...prevStudents, formData]
-    );
-  
+
+    const updateformdata = {
+      _id: formData?._id,
+      studentName: formData.studentName,
+      studentClass: formData.studentClass,
+      route: formData.route,
+      bus_number: formData.bus_number,
+      student_id: formData.student_id
+    }
+    if (isEditing) {
+      dispatch(UpdateBusassignInitiate(updateformdata, (success) => {
+        if (success) {
+          console.log('add successful, fetching add student list.');
+          dispatch(getAllBusassignInitiate());
+          handleCloseModal();
+        } else {
+          console.error('Failed to add teachet.');
+        }
+      }))
+    } else {
+      dispatch(AddBusassignInitiate(formdata, (success) => {
+        if (success) {
+          console.log('add successful, fetching add student list.');
+          dispatch(getAllBusassignInitiate());
+          handleCloseModal();
+        } else {
+          console.error('Failed to add teachet.');
+        }
+      }))
+    }
+
+
+    // const isDuplicateID = studentsData.some((student) => student.id === formData.id && student.id !== (isEditing ? formData.id : ""));
+    // if (!isEditing && isDuplicateID) {
+    //   alert("A student with this ID already exists!");
+    //   return; // Exit function, keeping the modal open
+    // }
+
+    // setStudentsData((prevStudents) =>
+    //   isEditing
+    //     ? prevStudents.map((student) => (student.id === formData.id ? { ...student, ...formData } : student))
+    //     : [...prevStudents, formData]
+    // );
+
+
+
     handleCloseModal(); // Close modal only when data is valid
-  };  
+  };
 
   // Delete a student from the list
   const handleDeleteStudent = (id) => {
-    if (window.confirm("Are you sure you want to remove this student?")) {
-      setStudentsData((prevStudents) => prevStudents.filter((student) => student.id !== id));
+    if (id) {
+      dispatch(
+        DeleteBusassignInitiate({ _id: id }, (success) => {
+          if (success) {
+            console.log('Delete successful, fetching updated student list.');
+            dispatch(getAllBusassignInitiate());
+          } else {
+            console.error('Failed to delete student.');
+          }
+        })
+      );
     }
-  };  
+  };
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -138,8 +205,8 @@ const StudentBusAssign = () => {
     setPage(0); // Reset to first page on new search
   };
 
-   // Handle bus filter change
-   const handleBusFilterChange = (event) => {
+  // Handle bus filter change
+  const handleBusFilterChange = (event) => {
     setBusFilter(event.target.value);
     setPage(0);
   };
@@ -153,23 +220,22 @@ const StudentBusAssign = () => {
     );
   };
 
-   // Filter students based on branch and search query
-   const filteredStudents = studentsData
-  .filter(student => 
-    (branchData[selectedBranch]?.includes(student.studentClass) || !selectedBranch) &&
-    (student.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     student.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     student.route.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     student.busNumber.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
-  .filter(student => !busFilter || student.busNumber === busFilter); // Apply bus number filter
+  // Filter students based on branch and search query
+  const filteredStudents = allbusassigned.filter(
+    (student) =>
+      (student?.studentName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student?.student_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student?.route?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student?.bus_number?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!busFilter || student.bus_number === busFilter)
+  ); // Apply bus number filter
 
-   // Ensure `page` is valid when `filteredStudents` changes
-   useEffect(() => {
+  // Ensure `page` is valid when `filteredStudents` changes
+  useEffect(() => {
     if (page > Math.floor(filteredStudents.length / rowsPerPage)) {
       setPage(0);
     }
-  }, [filteredStudents.length, rowsPerPage]);  
+  }, [filteredStudents.length, rowsPerPage]);
 
   // Apply pagination
   const displayedStudents = filteredStudents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -177,17 +243,17 @@ const StudentBusAssign = () => {
   return (
     <div className="min-h-screen p-6 bg-gray-50">
       <div>
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)} // Navigate to the previous page
-        className="flex items-center text-gray-700 hover:text-gray-900 font-semibold mb-4"
-      >
-        <IoArrowBack className="mr-2 text-2xl" /> {/* Back Icon */}
-        Back
-      </button>
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)} // Navigate to the previous page
+          className="flex items-center text-gray-700 hover:text-gray-900 font-semibold mb-4"
+        >
+          <IoArrowBack className="mr-2 text-2xl" /> {/* Back Icon */}
+          Back
+        </button>
 
-      {/* Title */}
-      <h1 className="text-2xl font-bold">Assign Students to Buses</h1>
+        {/* Title */}
+        <h1 className="text-2xl font-bold">Assign Students to Buses</h1>
       </div>
 
       {/* Header */}
@@ -220,20 +286,20 @@ const StudentBusAssign = () => {
             {displayedStudents.length > 0 ? (
               displayedStudents.map((student) => (
                 <tr key={student.id}>
-                  <td className="px-4 py-2 border border-gray-300">{student.id}</td>
+                  <td className="px-4 py-2 border border-gray-300">{student.student_id}</td>
                   <td className="px-4 py-2 border border-gray-300">{student.studentName}</td>
                   <td className="px-4 py-2 border border-gray-300">{student.studentClass}</td>
                   <td className="px-4 py-2 border border-gray-300">{student.route}</td>
-                  <td className="px-4 py-2 border border-gray-300">{student.busNumber || "Not Assigned"}</td>
+                  <td className="px-4 py-2 border border-gray-300">{student.bus_number}</td>
                   <td className="px-4 py-2 border border-gray-300">
-                  <div className="flex justify-center gap-2">
-                  <Button onClick={() => handleOpenModal(student)} color="primary" aria-label="Edit Student">
-                    <Edit fontSize="small" />
-                  </Button>
-                  <Button onClick={() => handleDeleteStudent(student.id)} color="error" aria-label="Delete Student">
-                    <Delete fontSize="small" />
-                  </Button>
-                  </div>
+                    <div className="flex justify-center gap-2">
+                      <Button onClick={() => handleOpenModal(student)} color="primary" aria-label="Edit Student">
+                        <Edit fontSize="small" />
+                      </Button>
+                      <Button onClick={() => handleDeleteStudent(student._id)} color="error" aria-label="Delete Student">
+                        <Delete fontSize="small" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -269,11 +335,10 @@ const StudentBusAssign = () => {
           <button
             onClick={() => handleChangePage(Math.max(page - 1, 0))}
             disabled={page === 0}
-            className={`px-4 py-2 border rounded ${
-              page === 0
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 border rounded ${page === 0
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             Prev
           </button>
@@ -290,11 +355,10 @@ const StudentBusAssign = () => {
               )
             }
             disabled={page >= Math.ceil(filteredStudents.length / rowsPerPage) - 1}
-            className={`px-4 py-2 border rounded ${
-              page >= Math.ceil(filteredStudents.length / rowsPerPage) - 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 border rounded ${page >= Math.ceil(filteredStudents.length / rowsPerPage) - 1
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             Next
           </button>
@@ -313,11 +377,11 @@ const StudentBusAssign = () => {
             {/* Student Id */}
             <TextField
               label="Id"
-              name="id"
+              name="student_id"
               variant="outlined"
               fullWidth
               size="small"
-              value={formData?.id || ""}
+              value={formData?.student_id || ""}
               onChange={handleInputChange}
               disabled={isEditing}
             />
@@ -384,11 +448,11 @@ const StudentBusAssign = () => {
             <TextField
               select
               label="Bus Number"
-              name="busNumber"
+              name="bus_number"
               variant="outlined"
               fullWidth
               size="small"
-              value={formData?.busNumber || ""}
+              value={formData?.bus_number || ""}
               onChange={handleInputChange}
               required
             >
@@ -412,7 +476,7 @@ const StudentBusAssign = () => {
                 variant="contained"
                 color="primary"
                 type="submit"
-                disabled={!formData?.studentName || !formData?.studentClass || !formData?.route || !formData.busNumber}
+                disabled={!formData?.studentName || !formData?.studentClass || !formData?.route || !formData.bus_number}
               >
                 {isEditing ? "Update" : "Assign"}
               </Button>

@@ -31,26 +31,10 @@ const BusList = () => {
     status: "",
   });
   const [editIndex, setEditIndex] = useState(null);
-  const [buses, setBuses] = useState([
-    { branch: "Main Branch", busNumber: "B001", busModel: "Model X", capacity: "40", status: "Active" },
-    { branch: "Main Branch", busNumber: "B002", busModel: "Model Y", capacity: "50", status: "Inactive" },
-    { branch: "City Branch", busNumber: "B003", busModel: "Model Z", capacity: "30", status: "Active" },
-    { branch: "Westside Branch", busNumber: "B004", busModel: "Model A", capacity: "60", status: "Active" },
-    { branch: "City Branch", busNumber: "B005", busModel: "Model B", capacity: "40", status: "Inactive" },
-    { branch: "Westside Branch", busNumber: "B006", busModel: "Model C", capacity: "35", status: "Active" },
-    { branch: "Main Branch", busNumber: "B007", busModel: "Model D", capacity: "45", status: "Inactive" },
-    { branch: "City Branch", busNumber: "B008", busModel: "Model E", capacity: "55", status: "Active" },
-    { branch: "Westside Branch", busNumber: "B009", busModel: "Model F", capacity: "50", status: "Active" },
-    { branch: "Main Branch", busNumber: "B010", busModel: "Model G", capacity: "60", status: "Inactive" },
-  ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [entriesCount, setEntriesCount] = useState(1); // Entries per page
   const [currentPage, setCurrentPage] = useState(1); // Current page
-  const { selectedBranch } = useBranch();
-  // const branchSpecificBuses = allbuses.filter((bus) => bus.branch === selectedBranch);
-
-
-  // Modal Handlers
+ // Modal Handlers
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => {
     setOpenModal(false);
@@ -67,9 +51,7 @@ const BusList = () => {
   const handleSaveBus = () => {
     if (editIndex !== null) {
       // // Update existing bus
-      // const updatedBuses = [...buses];
-      // updatedBuses[editIndex] = formData;
-      // setBuses(updatedBuses);
+  
       dispatch(UpdateBuslistInitiate(formData, (success) => {
         if (success) {
           console.log('Delete successful, fetching updated teacher list.');
@@ -107,19 +89,14 @@ const BusList = () => {
     handleOpenModal();
   };
 
-  // Delete Bus Handler
-  // const handleDeleteBus = (index) => {
-  //   const updatedBuses = buses.filter((_, i) => i !== index);
-  //   setBuses(updatedBuses);
-  // };
-
   const handleDeleteBus = (index) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this bus?");
     const id = allbuses?.find((item) => item?._id === index)
+    console.log("id45", id)
     if (isConfirmed) {
       if (id) {
         dispatch(
-          DeleteBuslistInitiate({ _id: id }, (success) => {
+          DeleteBuslistInitiate({ _id: id._id }, (success) => {
             if (success) {
               console.log('Delete successful, fetching updated student list.');
               dispatch(getAllBuslistInitiate());
@@ -131,15 +108,6 @@ const BusList = () => {
       }
     }
   };
-
-  // Filter Buses Based on Search Query
-  // const filteredBuses = allbuses?.filter((bus) =>
-
-  //   Object.values(bus)
-  //     .join(" ")
-  //     .toLowerCase()
-  //     .includes(searchQuery.toLowerCase())
-  // );
 
   const filteredBuses = allbuses?.filter((bus) => {
     const lowercasedQuery = searchQuery?.toLowerCase();

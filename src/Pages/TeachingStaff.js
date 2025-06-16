@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Upload, Add, Download, Edit, Delete } from "@mui/icons-material";
 import { useBranch } from "../Pages/Branches";
 import { useNavigate } from "react-router-dom";
@@ -7,235 +7,11 @@ import { getAllTeachersInitiate } from "../redux/actions/staff/teachingstaff/get
 import { AddTeachingstaffInitiate } from "../redux/actions/staff/teachingstaff/addteachingstaffAction";
 import { UpdateTeacherInitiate } from "../redux/actions/staff/teachingstaff/teachingstaffupdateAction";
 import { DeleteTeacherInitiate } from "../redux/actions/staff/teachingstaff/deleteteachingstaffAction";
+import { UploadTeachingStaffCsvInitiate } from "../redux/actions/staff/teachingstaff/uploadTeachingStaffCsvAction";
+import { CircularProgress, Tooltip } from "@mui/material";
 
 const TeachingStaff = () => {
-  // const [teachers, setTeachers] = useState([
-  //   {
-  //     id: "T12345",
-  //     name: "Mr. Smith",
-  //     department: "Math",
-  //     gender: "Male",
-  //     qualification: "M.Sc. Mathematics",
-  //     experience: "6 years",
-  //     joiningDate: "2018-11-10",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9852512358",
-  //     email: "smith@example.com",
-  //     mobile: "9123456789",
-  //     username: "mrsmith2018", password: "Smith@1234",
-  //     address: "789, Street",
-  //     city: "Vizag",
-  //     branch: "Main Branch", // ✅ Added branch field
-  //   },
-  //   {
-  //     id: "T54318",
-  //     name: "Ms. Johnson",
-  //     department: "English",
-  //     gender: "Female",
-  //     qualification: "M.A. English",
-  //     experience: "2 years",
-  //     joiningDate: "2022-08-02",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9852512358",
-  //     email: "johnson@example.com",
-  //     mobile: "9988776655", username: "msjohnson2022", password: "Johnson@5678",
-  //     address: "101, Avenue",
-  //     city: "Vizag",
-  //     branch: "City Branch",
-  //   },
-  //   {
-  //     id: "T54317",
-  //     name: "Ms. Williams",
-  //     department: "Science",
-  //     gender: "Female",
-  //     qualification: "M.Sc. Physics",
-  //     experience: "4 years",
-  //     joiningDate: "2021-06-15",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9852512360",
-  //     email: "williams@example.com",
-  //     mobile: "9876543210", username: "mswilliams2022", password: "Williams@5678",
-  //     address: "56, Park Lane",
-  //     city: "Vizag",
-  //     branch: "Westside Branch",
-  //   },
-  //   {
-  //     id: "T54316",
-  //     name: "Mr. Brown",
-  //     department: "History",
-  //     gender: "Male",
-  //     qualification: "M.A. History",
-  //     experience: "3 years",
-  //     joiningDate: "2020-05-12",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9874563210",
-  //     email: "brown@example.com",
-  //     mobile: "9123456780", username: "mrbrown2022", password: "Brown@5678",
-  //     address: "789, Historical Street",
-  //     city: "Vizag",
-  //     branch: "Main Branch",
-  //   },
-  //   {
-  //     id: "T54329",
-  //     name: "Ms. Taylor",
-  //     department: "Geography",
-  //     gender: "Female",
-  //     qualification: "M.A. Geography",
-  //     experience: "5 years",
-  //     joiningDate: "2019-07-22",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9988771122",
-  //     email: "taylor@example.com",
-  //     mobile: "9998887776", username: "mstaylor2022", password: "Taylor@5678",
-  //     address: "22, Map Street",
-  //     city: "Vizag",
-  //     branch: "City Branch",
-  //   },
-  //   {
-  //     id: "T54328",
-  //     name: "Mr. Anderson",
-  //     department: "Computer Science",
-  //     gender: "Male",
-  //     qualification: "M.Tech CS",
-  //     experience: "7 years",
-  //     joiningDate: "2017-09-10",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9944556677",
-  //     email: "anderson@example.com",
-  //     mobile: "9911223344", username: "mranderson2022", password: "Anderson@5678",
-  //     address: "44, Tech Park",
-  //     city: "Vizag",
-  //     branch: "Westside Branch",
-  //   },
-  //   {
-  //     id: "T54326",
-  //     name: "Ms. Lee",
-  //     department: "Biology",
-  //     gender: "Female",
-  //     qualification: "M.Sc. Biology",
-  //     experience: "6 years",
-  //     joiningDate: "2018-11-02",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9856554433",
-  //     email: "lee@example.com",
-  //     mobile: "9988776654", username: "mslee2022", password: "Lee@5678",
-  //     address: "55, Nature Avenue",
-  //     city: "Vizag",
-  //     branch: "Main Branch",
-  //   },
-  //   {
-  //     id: "T54325",
-  //     name: "Mr. Clark",
-  //     department: "Chemistry",
-  //     gender: "Male",
-  //     qualification: "M.Sc. Chemistry",
-  //     experience: "8 years",
-  //     joiningDate: "2016-03-15",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9944112233",
-  //     email: "clark@example.com",
-  //     mobile: "9123456785", username: "mrclark2022", password: "Clark@5678",
-  //     address: "77, Lab Street",
-  //     city: "Vizag",
-  //     branch: "City Branch",
-  //   },
-  //   {
-  //     id: "T54320",
-  //     name: "Ms. Scott",
-  //     department: "Physics",
-  //     gender: "Female",
-  //     qualification: "M.Sc. Physics",
-  //     experience: "3 years",
-  //     joiningDate: "2021-01-05",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9988773344",
-  //     email: "scott@example.com",
-  //     mobile: "9123456785", username: "msscott2022", password: "Scott@5678",
-  //     address: "89, Quantum Road",
-  //     city: "Vizag",
-  //     branch: "Westside Branch",
-  //   },
-  //   {
-  //     id: "T54321",
-  //     name: "Mr. Thomas",
-  //     department: "Physical Education",
-  //     gender: "Male",
-  //     qualification: "B.P.Ed.",
-  //     experience: "9 years",
-  //     joiningDate: "2015-12-22",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9977553311",
-  //     email: "thomas@example.com",
-  //     mobile: "9123456785", username: "mrthomas2022", password: "Thomas@5678",
-  //     address: "23, Sports Lane",
-  //     city: "Vizag",
-  //     branch: "Main Branch",
-  //   },
-  //   {
-  //     id: "T54323",
-  //     name: "Ms. Davis",
-  //     department: "Art",
-  //     gender: "Female",
-  //     qualification: "M.F.A.",
-  //     experience: "5 years",
-  //     joiningDate: "2019-04-10",
-  //     maritalStatus: "Married",
-  //     emergencyContact: "9933445566",
-  //     email: "davis@example.com",
-  //     mobile: "9977886655", username: "msdavis2022", password: "Davis@5678",
-  //     address: "12, Colors Street",
-  //     city: "Vizag",
-  //     branch: "City Branch",
-  //   },
-  //   {
-  //     id: "T54322",
-  //     name: "Mr. Walker",
-  //     department: "Music",
-  //     gender: "Male",
-  //     qualification: "M.A. Music",
-  //     experience: "4 years",
-  //     joiningDate: "2020-10-30",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9900223344",
-  //     email: "walker@example.com",
-  //     mobile: "9955223377", username: "mrwalker2022", password: "Walker@5678",
-  //     address: "98, Melody Lane",
-  //     city: "Vizag",
-  //     branch: "Westside Branch",
-  //   },
-  //   {
-  //     id: "T54301",
-  //     name: "Mr. Walker",
-  //     department: "Music",
-  //     gender: "Male",
-  //     qualification: "M.A. Music",
-  //     experience: "4 years",
-  //     joiningDate: "2020-10-30",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9900223344",
-  //     email: "walker@example.com",
-  //     mobile: "9955223377", username: "mrwalker2022", password: "Walker@5678",
-  //     address: "98, Melody Lane",
-  //     city: "Vizag",
-  //     branch: "Main Branch",
-  //   },
-  //   {
-  //     id: "T54302",
-  //     name: "Mr. Walker",
-  //     department: "Music",
-  //     gender: "Male",
-  //     qualification: "M.A. Music",
-  //     experience: "4 years",
-  //     joiningDate: "2020-10-30",
-  //     maritalStatus: "Single",
-  //     emergencyContact: "9900223344",
-  //     email: "walker@example.com",
-  //     mobile: "9955223377", username: "mrwalker2022", password: "Walker@5678",
-  //     address: "98, Melody Lane",
-  //     city: "Vizag",
-  //     branch: "Main Branch",
-  //   },
-  // ]);
+
   const dispatch = useDispatch();
   const { data: allteachers = [] } = useSelector((state) => state.getallteachers.teachers || {});
   useEffect(() => {
@@ -248,6 +24,14 @@ const TeachingStaff = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { selectedBranch } = useBranch(); // Get the selected branch
   const navigate = useNavigate();
+   const inputRef = useRef();
+    const { loading } = useSelector((state) => state.teachingStaffUpload);
+
+  
+
+  const handleIconClick = () => {
+    inputRef.current.click(); // trigger hidden file input
+  };
 
   useEffect(() => {
     setPage(0); // Reset to first page when branch changes
@@ -335,9 +119,9 @@ const TeachingStaff = () => {
   const filteredTeachers = allteachers?.filter((teacher) => {
     const lowercasedQuery = searchQuery?.toLowerCase();
     return (
-      teacher.teacherName.toLowerCase().includes(lowercasedQuery) ||
-      teacher._id.toLowerCase().includes(lowercasedQuery) ||
-      teacher.subject.toLowerCase().includes(lowercasedQuery)
+       (teacher.teacherName || "").toLowerCase().includes(lowercasedQuery) ||
+  (teacher._id || "").toLowerCase().includes(lowercasedQuery) ||
+  (teacher.subject || "").toLowerCase().includes(lowercasedQuery)
     );
   });
 
@@ -491,7 +275,23 @@ const TeachingStaff = () => {
   // const handleAddTeacher = (newTeacher) => {
   //   setTeachers((prevTeachers) => [newTeacher, ...prevTeachers]); // Prepend new teacher
   // };
+  
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file || file.type !== "text/csv") {
+      alert("Please select a valid CSV file.");
+      return;
+    }
 
+    const formData = new FormData();
+    formData.append("file", file);
+
+    dispatch(UploadTeachingStaffCsvInitiate(formData, (success) => {
+      if (success) {
+         dispatch(getAllTeachersInitiate());
+      }
+    }));
+  };
   return (
     <div className="p-6 bg-gray-100 overflow-x-auto max-w-7xl">
       <h1 className="mb-6 text-2xl sm:text-3xl font-bold text-gray-800 text-center sm:text-left">
@@ -530,7 +330,22 @@ const TeachingStaff = () => {
           onChange={handleSearchChange}
         />
         <div className="flex flex-wrap items-center gap-4 justify-center sm:justify-start">
-          <Upload className="text-blue-600 cursor-pointer hover:text-blue-800" title="Upload" />
+   <input
+        type="file"
+        accept=".csv"
+        ref={inputRef}
+        onChange={handleFileChange}
+        style={{ display: "none" }}
+      />
+      <Tooltip title="Upload CSV">
+        <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
+          {loading ? (
+            <CircularProgress size={24} />
+          ) : (
+            <Upload className="text-blue-600 hover:text-blue-800" />
+          )}
+        </span>
+      </Tooltip>
           <Add className="text-green-600 cursor-pointer hover:text-green-800" title="Add" onClick={() => setFormVisible(true)} />
           <Download className="text-purple-600 cursor-pointer hover:text-purple-800" title="Download" onClick={handleDownload} />
         </div>

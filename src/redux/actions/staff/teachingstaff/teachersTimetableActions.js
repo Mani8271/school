@@ -6,54 +6,75 @@ import {
   deleteTeachersTimetableApi,
 } from "../../../apis/staff/teachingstaff/teachersTimetableApi";
 
-// GET ALL
+// GET ALL Teachers Timetable
 export const GetAllTeachersTimetableInitiate = () => {
-  return async (dispatch) => {
+  return function (dispatch) {
     dispatch({ type: types.GET_ALL_TEACHERS_TIMETABLE_START });
-    try {
-      const res = await getAllTeachersTimetableApi();
-      dispatch({ type: types.GET_ALL_TEACHERS_TIMETABLE_SUCCESS, payload: res });
-    } catch (error) {
-      dispatch({ type: types.GET_ALL_TEACHERS_TIMETABLE_ERROR, payload: error });
-    }
+    getAllTeachersTimetableApi()
+      .then((res) => {
+        console.log("GET ALL Response:", res);
+        dispatch({ type: types.GET_ALL_TEACHERS_TIMETABLE_SUCCESS, payload: res });
+      })
+      .catch((error) => {
+        console.error("GET ALL Error:", error);
+        dispatch({
+          type: types.GET_ALL_TEACHERS_TIMETABLE_ERROR,
+          payload: error.message,
+        });
+      });
   };
 };
 
-// ADD
-export const AddTeachersTimetableInitiate = (payload) => {
-  return async (dispatch) => {
+// ADD Teachers Timetable
+export const AddTeachersTimetableInitiate = (payload, callback) => {
+  return function (dispatch) {
     dispatch({ type: types.ADD_TEACHERS_TIMETABLE_START });
-    try {
-      const res = await addTeachersTimetableApi(payload);
-      dispatch({ type: types.ADD_TEACHERS_TIMETABLE_SUCCESS, payload: res });
-    } catch (error) {
-      dispatch({ type: types.ADD_TEACHERS_TIMETABLE_ERROR, payload: error });
-    }
+    addTeachersTimetableApi(payload)
+      .then((res) => {
+        console.log("ADD Response:", res);
+        dispatch({ type: types.ADD_TEACHERS_TIMETABLE_SUCCESS, payload: res });
+        if (typeof callback === "function") callback(true);
+      })
+      .catch((error) => {
+        console.error("ADD Error:", error);
+        dispatch({ type: types.ADD_TEACHERS_TIMETABLE_ERROR, payload: error.message });
+        if (typeof callback === "function") callback(false);
+      });
   };
 };
 
-// UPDATE
-export const UpdateTeachersTimetableInitiate = (payload) => {
-  return async (dispatch) => {
+// UPDATE Teachers Timetable
+export const UpdateTeachersTimetableInitiate = (payload, callback) => {
+  return function (dispatch) {
     dispatch({ type: types.UPDATE_TEACHERS_TIMETABLE_START });
-    try {
-      const res = await updateTeachersTimetableApi(payload);
-      dispatch({ type: types.UPDATE_TEACHERS_TIMETABLE_SUCCESS, payload: res });
-    } catch (error) {
-      dispatch({ type: types.UPDATE_TEACHERS_TIMETABLE_ERROR, payload: error });
-    }
+    updateTeachersTimetableApi(payload)
+      .then((res) => {
+        console.log("UPDATE Response:", res);
+        dispatch({ type: types.UPDATE_TEACHERS_TIMETABLE_SUCCESS, payload: res });
+        if (typeof callback === "function") callback(true);
+      })
+      .catch((error) => {
+        console.error("UPDATE Error:", error);
+        dispatch({ type: types.UPDATE_TEACHERS_TIMETABLE_ERROR, payload: error.message });
+        if (typeof callback === "function") callback(false);
+      });
   };
 };
 
-// DELETE
-export const DeleteTeachersTimetableInitiate = (id) => {
-  return async (dispatch) => {
+// DELETE Teachers Timetable
+export const DeleteTeachersTimetableInitiate = (id, callback) => {
+  return function (dispatch) {
     dispatch({ type: types.DELETE_TEACHERS_TIMETABLE_START });
-    try {
-      const res = await deleteTeachersTimetableApi(id);
-      dispatch({ type: types.DELETE_TEACHERS_TIMETABLE_SUCCESS, payload: id });
-    } catch (error) {
-      dispatch({ type: types.DELETE_TEACHERS_TIMETABLE_ERROR, payload: error });
-    }
+    deleteTeachersTimetableApi(id)
+      .then((res) => {
+        console.log("DELETE Response:", res);
+        dispatch({ type: types.DELETE_TEACHERS_TIMETABLE_SUCCESS, payload: id });
+        if (typeof callback === "function") callback(true);
+      })
+      .catch((error) => {
+        console.error("DELETE Error:", error);
+        dispatch({ type: types.DELETE_TEACHERS_TIMETABLE_ERROR, payload: error.message });
+        if (typeof callback === "function") callback(false);
+      });
   };
 };

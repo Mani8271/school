@@ -173,7 +173,7 @@ const BusRoutes = () => {
     if (confirmDelete) {
       if (id) {
         dispatch(
-          DeleteBusrouteInitiate({ _id: id }, (success) => {
+          DeleteBusrouteInitiate({ _id: id._id }, (success) => {
             if (success) {
               console.log('Delete successful, fetching updated student list.');
               dispatch(getAllBusrouteInitiate());

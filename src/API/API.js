@@ -27,12 +27,13 @@ class API {
   }
 
   get(url, data) {
-    return new Promise((resolve, reject) => {
-      this.api(METHOD.GET, url, data)
-        .then((response) => resolve(response))
-        .catch((error) => console.log(error));
-    });
-  }
+  return new Promise((resolve, reject) => {
+    this.api(METHOD.GET, url, data)
+      .then((response) => resolve(response))
+      .catch((error) => reject(error)); // Properly handle rejection
+  });
+}
+  
 
   post(url, data) {
     return new Promise((resolve, reject) => {
@@ -75,10 +76,12 @@ class API {
       axiosConfig.url = this.baseURL + url;
       axiosConfig.headers = this.setHeaders(data);
       axiosConfig.withCredentials = true;  
-
-      if (data) {
-        axiosConfig.data = data;  
-      }
+  // used this for because of monthly attedence api and rest of the apis are working fine without or with this (for developer reference 82,84)
+       if (method === METHOD.GET) {
+      axiosConfig.params = data; // Use params for GET
+    } else {
+      axiosConfig.data = data;   // Use data for POST, PUT, PATCH, DELETE
+    }
 
       axios(axiosConfig)
         .then((response) => {
