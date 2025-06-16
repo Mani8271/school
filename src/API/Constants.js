@@ -1,4 +1,4 @@
-export const BASE_URL = "https://school-backend-3-2w8s.onrender.com/"
+export const BASE_URL = "https://school-backend-1-0vjl.onrender.com/"
 // export const BASE_URL = "http://localhost:3000/"
 
 
