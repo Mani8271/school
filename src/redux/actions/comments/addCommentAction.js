@@ -18,7 +18,7 @@ export const createCommentError = (error) => ({
 });
 
 // Thunk Action to initiate comment addition
-export const AddCommentInitiate = (formData) => {
+export const AddCommentInitiate = (formData, callback) => {
   return function (dispatch) {
     dispatch(createCommentStart(formData));
 
@@ -26,6 +26,7 @@ export const AddCommentInitiate = (formData) => {
       .then((res) => {
         dispatch(createCommentSuccess(res));
         if (res.status === 200) {
+          callback(true);
           console.log("Comment added successfully:", res);
         }
       })

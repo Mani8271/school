@@ -9,6 +9,9 @@ import { getAllBusassignInitiate } from "../redux/actions/Assignbustostudent/get
 import { AddBusassignInitiate } from "../redux/actions/Assignbustostudent/addbusassignAction";
 import { UpdateBusassignInitiate } from "../redux/actions/Assignbustostudent/updatebusassignAction";
 import { DeleteBusassignInitiate } from "../redux/actions/Assignbustostudent/deletebusassginAction";
+import { GetAllClassesInitiate } from "../redux/actions/class/getAllClassesAction";
+import { getAllBuslistInitiate } from "../redux/actions/schoolbus/buslist/getallbuslistAction";
+import { getAllBusrouteInitiate } from "../redux/actions/schoolbus/busroute/getallbusrouteAction";
 
 const StudentBusAssign = () => {
   const dispatch = useDispatch();
@@ -47,14 +50,27 @@ const StudentBusAssign = () => {
   const [busFilter, setBusFilter] = useState(""); // Filter by bus number
 
   // Mock data for bus routes
-  const busRoutes = ["Route A", "Route B", "Route C", "Route D"];
-  const busNumbers = ["Bus 101", "Bus 102", "Bus 103", "Bus 104", "Bus 105"];
+  // const busRoutes = ["Route A", "Route B", "Route C", "Route D"];
+  // const busNumbers = ["Bus 101", "Bus 102", "Bus 103", "Bus 104", "Bus 105"];
+  useEffect(() => {
+  dispatch(GetAllClassesInitiate());
+     dispatch(getAllBuslistInitiate());
+     dispatch(getAllBusrouteInitiate());
+}, []);
 
-  const branchData = {
-    "Main Branch": ["Class 1", "Class 2", "Class 3"],
-    "City Branch": ["Class 4", "Class 5"],
-    "Westside Branch": ["Class 6", "Class 7"],
-  };
+  const classes = useSelector((state) => state.getclasses.classes || []);
+    const { data: allbusesroutes = [] } = useSelector((state) => state.getallbusroute.busroute || {});
+    console.log("All Bus Routes:", allbusesroutes);
+
+     const { data: allbuses = [] } = useSelector((state) => state.getallbuslist.buslist || {});
+     console.log("All Buses:", allbuses);
+         const busRoutes = allbusesroutes.map((route) => route.route);
+    const busNumbers = allbuses.map((bus) => bus.busNumber);
+    
+
+const classNames = classes.map((cls) => cls.className);
+console.log("All Class Names:", classNames);
+ 
 
   // Modal open/close handlers
   const handleOpenModal = (student = null) => {
@@ -73,50 +89,14 @@ const StudentBusAssign = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Assign or update student to a bus
-  // const handleAssignStudent = () => {
-  //   if (!formData.studentName || !formData.studentClass || !formData.route || !formData.busNumber || !formData.id) return;
-
-  //   const isDuplicateID = studentsData.some((student) => student.id === formData.id);
-  //   if (!isEditing && isDuplicateID) {
-  //     alert("A student with this ID already exists!");
-  //     return;
-  //   }
-
-  //   setStudentsData((prevStudents) =>
-  //     isEditing
-  //       ? prevStudents.map((student) => (student.id === formData.id ? { ...student, ...formData } : student))
-  //       : [...prevStudents, formData]
-  //   );
-  //   handleCloseModal();
-  // };
-
-  // const handleAssignStudent = (e) => {
-  //   e.preventDefault(); // Prevents refresh
-  //   if (!formData.studentName || !formData.studentClass || !formData.route || !formData.busNumber || !formData.id) {
-  //     alert("Please fill all fields");
-  //     return;
-  //   }
-  //   setStudentsData(isEditing
-  //     ? studentsData.map(student => student.id === formData.id ? { ...student, ...formData } : student)
-  //     : [...studentsData, formData]
-  //   );
-  //   handleCloseModal();
-  // };
-
   const handleAssignStudent = (event) => {
     event.preventDefault(); // Prevent page reload
     console.log()
     if (!formData.studentName || !formData.studentClass || !formData.route || !formData.bus_number || !formData.student_id) {
       alert("Please fill in all fields!");
-      return; // Exit function, keeping the modal open
+      return; 
     }
-    // const formdata = new FormData();
-    // formdata.append("studentName", formData.studentName);
-    // formdata.append("studentClass", formData.studentClass);
-    // formdata.append("route", formData.route);
-    // formdata.append("bus_number", formData.bus_number);
-    // formdata.append("student_id", formData.student_id);
+    
     const formdata = {
       studentName: formData.studentName,
       studentClass: formData.studentClass,
@@ -154,21 +134,6 @@ const StudentBusAssign = () => {
         }
       }))
     }
-
-
-    // const isDuplicateID = studentsData.some((student) => student.id === formData.id && student.id !== (isEditing ? formData.id : ""));
-    // if (!isEditing && isDuplicateID) {
-    //   alert("A student with this ID already exists!");
-    //   return; // Exit function, keeping the modal open
-    // }
-
-    // setStudentsData((prevStudents) =>
-    //   isEditing
-    //     ? prevStudents.map((student) => (student.id === formData.id ? { ...student, ...formData } : student))
-    //     : [...prevStudents, formData]
-    // );
-
-
 
     handleCloseModal(); // Close modal only when data is valid
   };
@@ -410,8 +375,8 @@ const StudentBusAssign = () => {
               onChange={handleInputChange}
               required
             >
-              {branchData[selectedBranch]?.length ? (
-                branchData[selectedBranch].map((classItem, index) => (
+              {classNames?.length ? (
+               classNames?.map((classItem, index) => (
                   <MenuItem key={index} value={classItem}>
                     {classItem}
                   </MenuItem>

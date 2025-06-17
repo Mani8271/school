@@ -52,19 +52,26 @@ console.log("Comments:", filteredComments);
     setNewComment((prev) => ({ ...prev, [name]: value }));
   };
 
- const handleCommentSubmit = () => {
+const handleCommentSubmit = () => {
   if (newComment.name && newComment.email && newComment.comment && latestBlog?._id) {
     const commentData = {
       ...newComment,
       blogId: latestBlog._id,
     };
 
-    dispatch(AddCommentInitiate(commentData));
-    setNewComment({ name: "", email: "", comment: "" });
+    dispatch(AddCommentInitiate(commentData, (success) => {
+      if (success) {
+        setNewComment({ name: "", email: "", comment: "" }); 
+        dispatch(GetAllCommentInitiate(latestBlog._id));     
+      } else {
+        alert("Failed to add comment.");
+      }
+    }));
   } else {
     alert("Please fill all fields and ensure the blog is loaded.");
   }
 };
+
 
   // const filteredComments = comments.filter((comment) => comment.branch === selectedBranch);
    const imageUrl = latestBlog?.blogImage

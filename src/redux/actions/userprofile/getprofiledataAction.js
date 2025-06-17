@@ -16,13 +16,12 @@ export const getuserprofileError = (error) => ({
     payload: error,
 });
 
-// Thunk Action to initiate registration
-let isProfileFetched = false;
+
 
 export const GetuserprofileInitiate = () => {
     return function (dispatch) {
-        if (isProfileFetched) return;
-        isProfileFetched = true;
+    
+    
         dispatch(getuserprofileStart());
         getprofiledataApi()
             .then((res) => {

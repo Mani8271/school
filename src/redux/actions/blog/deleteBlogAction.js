@@ -17,12 +17,13 @@ export const deleteBlogError = (error) => ({
 });
 
 // Thunk Action to delete a blog
-export const DeleteBlogInitiate = (blogId) => {
+export const DeleteBlogInitiate = (blogId, success) => {
   return function (dispatch) {
     dispatch(deleteBlogStart());
     deleteBlogApi(blogId)
       .then((res) => {
         if (res.status === 200) {
+          success(true);
           dispatch(deleteBlogSuccess(blogId));
         } else {
           dispatch(deleteBlogError("Failed to delete blog"));

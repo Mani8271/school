@@ -18,12 +18,14 @@ import {
 import { UpdateprofiledataInitiate } from '../redux/actions/userprofile/updateprofiledataAction';
 import { BASE_URL } from '../API/Constants';
 import { Link, useNavigate } from 'react-router-dom';
+import Loader from '../Components/loader';
 
 const Profile = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userdata = useSelector((state) => state?.userdetails?.data?.data);
+  const loading = useSelector((state) => state.userdetails.loading);
   const [profile, setProfile] = useState(null); // Initial state is null
   const [editProfile, setEditProfile] = useState(null); // Initial state is null
 
@@ -91,16 +93,26 @@ const Profile = () => {
       formData.append("profilePicture", editProfile.profileFile); // must match backend field name
     }
 
-    dispatch(UpdateprofiledataInitiate(formData));
+    dispatch(UpdateprofiledataInitiate(formData , (success) => {
+        if (success) {
+          
+          dispatch(GetuserprofileInitiate());
+        } else {
+          console.error('Failed.');
+        }
+      }));
     handleClose();
   };
 
-  if (!profile)
-    return <Typography>Loading...</Typography>; // Render loading state
-
-  const imageUrl = userdata.profilePicture
+ 
+  const imageUrl = userdata?.profilePicture
     ? `${BASE_URL}userdp/${userdata.profilePicture}`
     : "https://via.placeholder.com/120"; 
+
+
+ if (loading || !profile) {
+  return <Loader />;
+}
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">

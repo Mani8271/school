@@ -18,7 +18,7 @@ export const createBlogError = (error) => ({
 });
 
 // Thunk Action to initiate blog addition
-export const AddBlogInitiate = (formData) => {
+export const AddBlogInitiate = (formData , success) => {
   return function (dispatch) {
     dispatch(createBlogStart(formData));
 
@@ -26,6 +26,7 @@ export const AddBlogInitiate = (formData) => {
       .then((res) => {
         dispatch(createBlogSuccess(res));
         if (res.status === 200) {
+          success(true);
           console.log("Blog added successfully:", res);
         }
       })

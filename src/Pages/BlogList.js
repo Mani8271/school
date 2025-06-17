@@ -84,71 +84,6 @@ const BlogList = () => {
     });
   };
 
-  // const handlePublish = () => {
-  //   const blogWithDate = {
-  //     ...formData,
-  //     date: getFormattedDate(),
-  //     id: Date.now(),
-  //   };
-
-  //   if (editBlogId !== null) {
-  //     setBlogs((prevBlogs) =>
-  //       prevBlogs.map((blog) =>
-  //         blog.id === editBlogId ? { ...blog, ...blogWithDate } : blog
-  //       )
-  //     );
-  //   } else {
-  //     setBlogs((prevBlogs) => [...prevBlogs, blogWithDate]);
-  //   }
-
-  //   setFormData({
-  //     title: "",
-  //     image: null,
-  //     category: "",
-  //     subCategory: "",
-  //     description: "",
-  //     tags: "",
-  //     status: "Active",
-  //   });
-  //   setEditBlogId(null);
-  //   handleCloseModal();
-  // };
-// const handlePublish = () => {
-//   const formattedDate = getFormattedDate();
-
-//   const blogForm = new FormData();
-//   blogForm.append("title", formData.title);
-//   blogForm.append("category", formData.category);
-//   blogForm.append("subCategory", formData.subCategory);
-//   blogForm.append("description", formData.description);
-//   blogForm.append("tags", formData.tags);
-//   blogForm.append("status", formData.status);
-//   blogForm.append("date", formattedDate);
-//   blogForm.append("branch", selectedBranch); // Add branch info
-
-//   if (formData.image instanceof File) {
-//     blogForm.append("blogImage", formData.image);
-//   }
-  
-//   for (let pair of blogForm.entries()) {
-//     console.log(`📦 ${pair[0]}:`, pair[1]);
-//   }
-//   dispatch(AddBlogInitiate(blogForm));
-
-//   // Reset form and close modal
-//   setFormData({
-//     title: "",
-//     image: null,
-//     category: "",
-//     subCategory: "",
-//     description: "",
-//     tags: "",
-//     status: "Active",
-//   });
-//   setEditBlogId(null);
-//   handleCloseModal();
-// };
-
 const handlePublish = () => {
   const formattedDate = getFormattedDate();
 
@@ -171,14 +106,20 @@ const handlePublish = () => {
   }
 
   if (editBlogId) {
-    blogForm.append("_id", editBlogId); // Add the ID for backend update
+    blogForm.append("_id", editBlogId); 
+   
     dispatch(UpdateBlogInitiate(blogForm, (success) => {
       if (success) {
-        dispatch(GetAllBlogInitiate()); // Refresh list on success
+      
+        dispatch(GetAllBlogInitiate()); 
       }
     }));
   } else {
-    dispatch(AddBlogInitiate(blogForm));
+    dispatch(AddBlogInitiate(blogForm, (success) => {
+      if (success) {
+        dispatch(GetAllBlogInitiate()); 
+      }
+    }));
   }
 
   setFormData({
@@ -215,7 +156,11 @@ const handlePublish = () => {
   };
 
  const handleDelete = (id) => {
-  dispatch(DeleteBlogInitiate(id));
+  dispatch(DeleteBlogInitiate(id, (success) => {
+      if (success) {
+        dispatch(GetAllBlogInitiate()); 
+      }
+    }));
 };
     const imageUrl = blogs.blogImage
     ? `${BASE_URL}blogimages/${blogs.blogImage}`

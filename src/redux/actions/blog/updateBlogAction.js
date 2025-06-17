@@ -18,14 +18,15 @@ export const updateBlogError = (error) => ({
 });
 
 // Thunk Action to initiate blog update
-export const UpdateBlogInitiate = (formData, callback) => {
+export const UpdateBlogInitiate = (formData, success) => {
   return function (dispatch) {
     dispatch(updateBlogStart(formData));
     updateBlogApi(formData)
       .then((res) => {
         dispatch(updateBlogSuccess(res));
         if (res.status === 200) {
-          callback(true);
+          success(true);
+     
           console.log("✅ Blog update response:", res);
         }
       })

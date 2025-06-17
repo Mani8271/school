@@ -18,8 +18,10 @@ export const updateprofiledataError = (error) => ({
 });
 
 // Thunk Action to initiate registration
-export const UpdateprofiledataInitiate = (formData) => {
-    console.log("----->",formData)
+export const UpdateprofiledataInitiate = (formData,success) => {
+    for (let [key, value] of formData.entries()) {
+  console.log(key, value);
+}
     return function (dispatch) {
         
 
@@ -29,6 +31,8 @@ export const UpdateprofiledataInitiate = (formData) => {
             .then((res) => {
                 dispatch(updateprofiledataSuccess(res));
                 if (res.status === 200) {
+                    success(true);
+               
 
                     console.log("i am response in add student intiate", res)
                 }

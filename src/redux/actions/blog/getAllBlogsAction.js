@@ -16,13 +16,11 @@ export const getAllBlogError = (error) => ({
   payload: error,
 });
 
-// Thunk Action to fetch all blogs
-let isBlogsFetched = false;
+
 
 export const GetAllBlogInitiate = () => {
   return function (dispatch) {
-    if (isBlogsFetched) return;
-    isBlogsFetched = true;
+  
     dispatch(getAllBlogStart());
     getAllBlogsApi()
       .then((res) => {
