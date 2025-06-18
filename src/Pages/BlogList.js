@@ -21,6 +21,7 @@ import { GetAllBlogInitiate } from "../redux/actions/blog/getAllBlogsAction";
 import { BASE_URL } from "../API/Constants";
 import { UpdateBlogInitiate } from "../redux/actions/blog/updateBlogAction";
 import { DeleteBlogInitiate } from "../redux/actions/blog/deleteBlogAction";
+import Loader from "../Components/loader";
 
 const useStyles = makeStyles({
   modal: {
@@ -33,11 +34,7 @@ const BlogList = () => {
   const { selectedBranch } = useBranch();
   const [imageName, setImageName] = useState("");
   const dispatch = useDispatch();
-  // 🔥 Mock Data Added
-
   const { blogs, loading } = useSelector((state) => state.blogs);
-  console.log("Blogs from Redux:", blogs);
-
   const [formData, setFormData] = useState({
     title: "",
     image: null,
@@ -69,7 +66,7 @@ const BlogList = () => {
    setImagePreview(`${BASE_URL}blogimages/${blogs.blogImage}`);
     setFormData((prev) => ({
       ...prev,
-      image: file, // for upload
+      image: file, 
     }));
      setImageName(file.name);
   }
@@ -86,7 +83,6 @@ const BlogList = () => {
 
 const handlePublish = () => {
   const formattedDate = getFormattedDate();
-
   const blogForm = new FormData();
   blogForm.append("title", formData.title);
   blogForm.append("category", formData.category);
@@ -100,12 +96,7 @@ const handlePublish = () => {
   if (formData.image instanceof File) {
     blogForm.append("blogImage", formData.image);
   }
-
-  for (let pair of blogForm.entries()) {
-    console.log(`📦 ${pair[0]}:`, pair[1]);
-  }
-
-  if (editBlogId) {
+ if (editBlogId) {
     blogForm.append("_id", editBlogId); 
    
     dispatch(UpdateBlogInitiate(blogForm, (success) => {
@@ -121,8 +112,7 @@ const handlePublish = () => {
       }
     }));
   }
-
-  setFormData({
+ setFormData({
     title: "",
     image: null,
     category: "",
@@ -135,9 +125,7 @@ const handlePublish = () => {
   setEditBlogId(null);
   handleCloseModal();
 };
-
-
-  const handleEdit = (blog) => {
+const handleEdit = (blog) => {
     setFormData({
       title: blog.title,
       image: blog.blogImage,
@@ -147,24 +135,21 @@ const handlePublish = () => {
       tags: blog.tags,
       status: blog.status,
     });
-    
     setImageName(blog.blogImage);
-  setImagePreview(`${BASE_URL}blogimages/${blogs.blogImage}`);
-    // setEditBlogId(blog.id);
-     setEditBlogId(blog._id);
+    setImagePreview(`${BASE_URL}blogimages/${blogs.blogImage}`);
+   setEditBlogId(blog._id);
     handleShowModal();
   };
-
- const handleDelete = (id) => {
+  const handleDelete = (id) => {
   dispatch(DeleteBlogInitiate(id, (success) => {
       if (success) {
         dispatch(GetAllBlogInitiate()); 
       }
     }));
 };
-    const imageUrl = blogs.blogImage
-    ? `${BASE_URL}blogimages/${blogs.blogImage}`
-    : "https://via.placeholder.com/300x200";
+ if (loading) {
+    return <Loader/>;
+  }
 
   return (
     <div className="container mt-4">
@@ -185,8 +170,6 @@ const handlePublish = () => {
           ></Button>
         </div>
       </div>
-
-      {/* 🔥 Blog Cards Displaying Mock Data */}
         {blogs.map((blog) => {
       const imageUrl = blog.blogImage
         ? `${BASE_URL}blogimages/${blog.blogImage}`
@@ -207,12 +190,9 @@ const handlePublish = () => {
             <div className="p-4">
               <h5 className="text-lg font-semibold">{blog.title}</h5>
               <p className="text-sm">{blog.description}</p>
-            {/* <Link to="/blogs/blogview" className="text-blue-500 underline">
-              Read More
-            </Link> */}
             <Link to={`/blogs/blogview/${blog._id}`} className="text-blue-500 underline">
-  Read More
-</Link>
+              Read More
+            </Link>
 
             </div>
             <div className="flex items-center justify-between p-3 text-sm text-gray-500">
@@ -274,23 +254,6 @@ const handlePublish = () => {
             <p className="mt-1 text-sm text-gray-600">Selected: {imageName}</p>
           )}
         </div>
-            {/* <div className="mb-4">
-              <TextField
-                type="file"
-                label="Blog Image"
-                onChange={handleFileChange}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-              />
-              {/* {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="mt-2 w-full h-48 object-cover rounded"
-                />
-              )} */}
-            {/* </div> */} 
-
             {/* Blog Category */}
             <div className="mb-4">
               <FormControl fullWidth>

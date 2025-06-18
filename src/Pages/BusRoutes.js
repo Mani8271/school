@@ -15,9 +15,8 @@ const BusRoutes = () => {
   useEffect(() => {
     dispatch(getAllBusrouteInitiate());
   }, []);
-  console.log("i am all allbusesroutes", allbusesroutes);
   const [openModal, setOpenModal] = useState(false);
-  const [editIndex, setEditIndex] = useState(null); // Track the index of the row being edited
+  const [editIndex, setEditIndex] = useState(null); 
   const [formData, setFormData] = useState({
     _id: "",
     route: "",
@@ -29,31 +28,11 @@ const BusRoutes = () => {
     students: "",
     driverContact: ""
   });
-  const { selectedBranch } = useBranch();
-
-  const [tableData, setTableData] = useState([
-    { branch: "Main Branch", route: "Route 1", busAssigned: "Bus 101", driver: "John Doe", conductor: "Alice", conductorContact: "1234567890", busCapacity: "50", students: "45" },
-    { branch: "Main Branch", route: "Route 2", busAssigned: "Bus 102", driver: "Jane Smith", conductor: "Bob", conductorContact: "9876543210", busCapacity: "60", students: "55" },
-    { branch: "City Branch", route: "Route 3", busAssigned: "Bus 103", driver: "Michael Johnson", conductor: "Charlie", conductorContact: "1231231234", busCapacity: "40", students: "35" },
-    { branch: "City Branch", route: "Route 4", busAssigned: "Bus 104", driver: "Sara Lee", conductor: "David", conductorContact: "4564564567", busCapacity: "50", students: "48" },
-    { branch: "Westside Branch", route: "Route 5", busAssigned: "Bus 105", driver: "Tom Clark", conductor: "Eve", conductorContact: "3213213210", busCapacity: "55", students: "50" },
-  ]);
-
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Pagination State
+  
+const [searchQuery, setSearchQuery] = useState("");
+ // Pagination State
   const [currentPage, setCurrentPage] = useState(1); // Current page
   const [entriesCount, setEntriesCount] = useState(5); // Rows per page
-
-  const branchSpecificData = tableData.filter((item) => item.branch === selectedBranch);
-
-  // const filteredData = branchSpecificData.filter((item) =>
-  //   Object.values(item)
-  //     .join(" ")
-  //     .toLowerCase()
-  //     .includes(searchQuery.toLowerCase())
-  // );
-
   const filteredData = allbusesroutes?.filter((bus) => {
     const lowercasedQuery = searchQuery?.toLowerCase();
     return (
@@ -67,15 +46,11 @@ const BusRoutes = () => {
       bus.students.toLowerCase().includes(lowercasedQuery)
     );
   });
-
-
-  const totalPages = Math.ceil(allbusesroutes.length / entriesCount);
+ const totalPages = Math.ceil(allbusesroutes.length / entriesCount);
   const currentData = filteredData.slice((currentPage - 1) * entriesCount, currentPage * entriesCount);
-
-
-  const handleEntriesChange = (e) => {
+ const handleEntriesChange = (e) => {
     setEntriesCount(Number(e.target.value));
-    setCurrentPage(1); // Reset to page 1 when entries per page change
+    setCurrentPage(1); 
   };
 
   const handleOpenModal = () => setOpenModal(true);
@@ -90,7 +65,7 @@ const BusRoutes = () => {
       busCapacity: "",
       students: "",
     });
-    setEditIndex(null); // Reset edit index
+    setEditIndex(null); 
   };
 
   // Form change handler
@@ -101,22 +76,14 @@ const BusRoutes = () => {
   // Add or update data in the table
   const handleSave = () => {
     if (editIndex !== null) {
-      // // Update existing row
-      // const updatedData = [...tableData];
-      // updatedData[editIndex] = formData;
-      // setTableData(updatedData);
-      dispatch(UpdateBusrouteInitiate(formData, (success) => {
+   dispatch(UpdateBusrouteInitiate(formData, (success) => {
         if (success) {
-          console.log('Delete successful, fetching updated teacher list.');
-          dispatch(getAllBusrouteInitiate());
+       dispatch(getAllBusrouteInitiate());
           handleCloseModal();
-        } else {
-          console.error('Failed to update student.');
-        }
+        } 
       }))
     } else {
-      // Add new row
-      // setTableData([...tableData, formData]);
+     
       const formdata = {
         busAssigned: formData?.busAssigned,
         busCapacity: formData?.busCapacity,
@@ -129,11 +96,8 @@ const BusRoutes = () => {
       }
       dispatch(AddBusrouteInitiate(formdata, (success) => {
         if (success) {
-          console.log('add successful, fetching add student list.');
-          dispatch(getAllBusrouteInitiate());
+         dispatch(getAllBusrouteInitiate());
           handleCloseModal();
-        } else {
-          console.error('Failed to add teachet.');
         }
       }))
     }
@@ -145,56 +109,29 @@ const BusRoutes = () => {
     setFormData(allbusesroutes?.find((item) => item?._id === index));
     handleOpenModal();
   };
-
-  // Delete a row from the table
-  // const handleDelete = (index) => {
-  //   const updatedData = tableData.filter((_, i) => i !== index);
-  //   setTableData(updatedData);
-  // };
-
-  const handleDelete = (index) => {
-    // Check if tableData exists and has entries
-    if (!tableData || tableData.length === 0) {
-      alert("No data available to delete.");
-      return;
-    }
-
-    // Ensure the index is valid
-    if (index < 0 || index >= tableData.length) {
-      alert("Invalid row selected.");
-      return;
-    }
-
-    // Ask for confirmation before deleting
-    const confirmDelete = window.confirm("Are you sure you want to delete this row?");
+ const handleDelete = (index) =>{
+const confirmDelete = window.confirm("Are you sure you want to delete this row?");
     if (!confirmDelete) return;
-
     const id = allbusesroutes?.find((item) => item?._id === index)
     if (confirmDelete) {
       if (id) {
         dispatch(
           DeleteBusrouteInitiate({ _id: id._id }, (success) => {
             if (success) {
-              console.log('Delete successful, fetching updated student list.');
-              dispatch(getAllBusrouteInitiate());
-            } else {
-              console.error('Failed to delete student.');
+             dispatch(getAllBusrouteInitiate());
             }
           })
         );
       }
     }
   };
-
-
-  // Handle Previous and Next Page Navigation
+ // Handle Previous and Next Page Navigation
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  const handleNextPage = () => {
+ const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }

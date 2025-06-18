@@ -8,26 +8,17 @@ import { BASE_URL } from "../API/Constants";
 import { AddCommentInitiate } from "../redux/actions/comments/addCommentAction";
 import { GetAllCommentInitiate } from "../redux/actions/comments/getCommentsAction";
 import { useParams } from "react-router-dom";
+import Loader from "../Components/loader";
 
 const BlogView = () => {
   const dispatch = useDispatch();
-  const { selectedBranch } = useBranch();
-    const { blogId } = useParams();
-    console.log("blogId12:", blogId);
-
-  // Fetch blogs from Redux store
-  const { blogs } = useSelector((state) => state.blogs); // <- change `state.blog` as per your reducer name
-
-  // const [comments, setComments] = useState([]);
+  const { blogId } = useParams();
+  const { blogs,loading } = useSelector((state) => state.blogs); 
+  const { loading: commentloading } = useSelector((state) => state.comments);
   const [newComment, setNewComment] = useState({ name: "", email: "", comment: "" });
-
   useEffect(() => {
     dispatch(GetAllBlogInitiate());
   }, [dispatch]);
-
- 
-
-// 2. Once latest blog is available, fetch comments for that blog
  useEffect(() => {
     if (blogs?.length > 0) {
       const currentBlog = blogId
@@ -40,14 +31,12 @@ const BlogView = () => {
     }
   }, [blogs, blogId, dispatch]);
 
-  // 🔍 Get latest blog (optionally filter by branch here if needed)
+  //  Get latest blog (optionally filter by branch here if needed)
    const latestBlog = blogId
     ? blogs.find((b) => b._id === blogId)
     : blogs[blogs.length - 1];
  const filteredComments = useSelector((state) => state.comments.comments);
-console.log("Comments:", filteredComments);
-
-  const handleCommentChange = (e) => {
+const handleCommentChange = (e) => {
     const { name, value } = e.target;
     setNewComment((prev) => ({ ...prev, [name]: value }));
   };
@@ -63,20 +52,17 @@ const handleCommentSubmit = () => {
       if (success) {
         setNewComment({ name: "", email: "", comment: "" }); 
         dispatch(GetAllCommentInitiate(latestBlog._id));     
-      } else {
-        alert("Failed to add comment.");
-      }
+      } 
     }));
-  } else {
-    alert("Please fill all fields and ensure the blog is loaded.");
   }
 };
-
-
-  // const filteredComments = comments.filter((comment) => comment.branch === selectedBranch);
-   const imageUrl = latestBlog?.blogImage
+  const imageUrl = latestBlog?.blogImage
       ? `${BASE_URL}blogimages/${latestBlog?.blogImage}`
       : "https://via.placeholder.com/300x200";
+
+       if (loading || commentloading) {
+          return <Loader />;
+        }
 
   return (
     <div className="overflow-hidden" style={{ height: "90vh" }}>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Edit, Delete, Add } from "@mui/icons-material";
-import { useBranch } from "../Pages/Branches"; // Import branch context
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBusstaffInitiate } from "../redux/actions/schoolbus/busstaff/getallbusstaffAction";
 import { AddBusstaffInitiate } from "../redux/actions/schoolbus/busstaff/addbusstaffAction";
@@ -14,14 +13,8 @@ const DriverDashboard = () => {
   useEffect(() => {
     dispatch(getAllBusstaffInitiate());
   }, []);
-  console.log("i am all allbusesstaff", allbusesstaff);
-
-  const { selectedBranch } = useBranch(); // ✅ Get the selected branch
-
-
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDriver, setSelectedDriver] = useState(null);
-  // console.log(' iam mage',selectedDriver?.profilePhoto)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -32,11 +25,6 @@ const DriverDashboard = () => {
   const handleSearch = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
   };
-
-  const branchSpecificDrivers = allbusesstaff.filter(
-    (driver) => driver.branch === selectedBranch
-  );
-
   // Add Driver
   const handleAddDriver = (e) => {
   e.preventDefault();
@@ -68,53 +56,12 @@ const DriverDashboard = () => {
   // Dispatch action to Redux
   dispatch(AddBusstaffInitiate(driverForm, (success) => {
     if (success) {
-      console.log('Driver added successfully. Refreshing list...');
       dispatch(getAllBusstaffInitiate());
       closeAddModal();
-    } else {
-      console.error('Failed to add driver.');
-    }
+    } 
   }));
 };
-
-
-  // // Edit Driver
-  // const handleEditDriver = (e) => {
-  //   e.preventDefault();
-  //   const formData = new FormData(e.target);
-  //   const updatedDriver = {
-  //     _id: selectedDriver._id,
-  //     role: formData.get("role"),
-  //     name: formData.get("name"),
-  //     dateofBirth: formData.get("dob"),
-  //     license: formData.get("license"),
-  //     contact: formData.get("contact"),
-  //     vehicle: formData.get("vehicle"),
-  //     route: formData.get("route"),
-  //     // experience: formData.get("experience"),
-  //     email: formData.get('email'),
-  //     // password: formData.get("password"),
-  //     profilePhoto:
-  //       formData.get("profilePhoto") && formData.get("profilePhoto").name
-  //         ? URL.createObjectURL(formData.get("profilePhoto"))
-  //         : selectedDriver.profilePhoto,
-  //     licensePhoto:
-  //       formData.get("licensePhoto") && formData.get("licensePhoto").name
-  //         ? URL.createObjectURL(formData.get("licensePhoto"))
-  //         : selectedDriver.licensePhoto,
-  //   };
-  //   dispatch(UpdateBusstaffInitiate(updatedDriver, (success) => {
-  //     if (success) {
-  //       console.log('Delete successful, fetching updated teacher list.');
-  //       dispatch(getAllBusstaffInitiate());
-  //       closeEditModal();
-  //     } else {
-  //       console.error('Failed to update student.');
-  //     }
-  //   }))
-
-  // };
-  const handleEditDriver = (e) => {
+const handleEditDriver = (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   const driverForm = new FormData();
@@ -141,28 +88,18 @@ const DriverDashboard = () => {
 
   dispatch(UpdateBusstaffInitiate(driverForm, (success) => {
     if (success) {
-      console.log("Update successful, fetching updated bus staff list.");
       dispatch(getAllBusstaffInitiate());
       closeEditModal();
-    } else {
-      console.error("Failed to update bus staff.");
     }
   }));
 };
-
-
-  // Delete Driver
+// Delete Driver
   const confirmDeleteDriver = () => {
-    // setDrivers(drivers.filter((driver) => driver.id !== driverToDelete.id));
-    // closeDeleteModal();
-    dispatch(
+   dispatch(
       DeleteBusstaffInitiate({ _id: driverToDelete._id }, (success) => {
         if (success) {
-          console.log('Delete successful, fetching updated student list.');
-          dispatch(getAllBusstaffInitiate());
+        dispatch(getAllBusstaffInitiate());
           closeDeleteModal()
-        } else {
-          console.error('Failed to delete student.');
         }
       })
     );
@@ -178,19 +115,16 @@ const DriverDashboard = () => {
     setDriverToDelete(driver);
     setIsDeleteModalOpen(true);
   };
-
-  // Function to open the profile modal and set the selected driver
+// Function to open the profile modal and set the selected driver
   const openViewProfileModal = (driver) => {
     setSelectedDriver(driver);
     setIsProfileModalOpen(true);
   };
-
-  // Function to close the profile modal
+// Function to close the profile modal
   const closeProfileModal = () => {
     setIsProfileModalOpen(false);
   };
-
-  // Close Modals
+// Close Modals
   const closeAddModal = () => setIsAddModalOpen(false);
   const closeEditModal = () => {
     setIsEditModalOpen(false);
@@ -207,7 +141,6 @@ const DriverDashboard = () => {
       bus.role.toLowerCase().includes(lowercasedQuery) ||
       bus.name.toLowerCase().includes(lowercasedQuery) ||
       bus._id.toLowerCase().includes(lowercasedQuery) ||
-      // bus.dateofBirth.toLowerCase().includes(lowercasedQuery) ||
       bus.license.toLowerCase().includes(lowercasedQuery) ||
       bus.contact.toLowerCase().includes(lowercasedQuery) ||
       bus.vehicle.toLowerCase().includes(lowercasedQuery) ||
@@ -232,7 +165,7 @@ const DriverDashboard = () => {
           className="text-blue-600 py-2 px-4 flex items-center"
           onClick={openAddModal}
         >
-          <Add sx={{ fontSize: 24 }} /> {/* Add icon with margin */}
+          <Add sx={{ fontSize: 24 }} /> 
         </button>
       </div>
 
@@ -349,15 +282,13 @@ const DriverDashboard = () => {
 
             {/* Profile Photo */}
             <div className="flex justify-center gap-4 mb-6 flex-wrap">
-              {/* Check if the driver has a profile photo, otherwise display a placeholder */}
-              <img
+            <img
                   src={
                         selectedDriver?.profilePhoto
                           ? `${BASE_URL}busstaffimages/${selectedDriver.profilePhoto}`
                           : "https://via.placeholder.com/150"
                       }
-                    // Provide a default image path
-                alt="Profile"
+                  alt="Profile"
                 className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover"
               />
               <img
@@ -365,7 +296,7 @@ const DriverDashboard = () => {
                   selectedDriver?.licensePhoto
                     ? `${BASE_URL}busstaffimages/${selectedDriver.licensePhoto}`
                     : "https://via.placeholder.com/150"
-                }// Provide a default image path
+                }
                 alt="License"
                 className="w-32 h-16 sm:w-48 sm:h-24 object-cover"
               />
@@ -405,10 +336,6 @@ const DriverDashboard = () => {
                 <label className="block text-gray-700">Route:</label>
                 <p className="text-gray-900">{selectedDriver.route}</p>
               </div>
-              {/* <div className="mb-4">
-            <label className="block text-gray-700">Experience:</label>
-            <p className="text-gray-900">{selectedDriver.experience}</p>
-            </div> */}
             </div>
 
             {/* Close Button */}
@@ -517,15 +444,6 @@ const DriverDashboard = () => {
                   className="w-full p-2 border rounded-lg"
                 />
               </div>
-              {/* <div className="mb-4">
-          <label className="block text-gray-700">Experience</label>
-          <input
-            type="text"
-            name="experience"
-            required
-            className="w-full p-3 border rounded-lg"
-          />
-        </div> */}
               <div className="mb-4">
                 <label className="block text-gray-700">Profile Photo</label>
                 <input
@@ -580,7 +498,7 @@ const DriverDashboard = () => {
                 <label className="block text-gray-700">Role</label>
                 <select
                   name="role"
-                  defaultValue={selectedDriver.role} // Assuming selectedDriver contains the selected driver's role
+                  defaultValue={selectedDriver.role} 
                   required
                   className="w-full p-2 border rounded-lg"
                 >
@@ -599,16 +517,6 @@ const DriverDashboard = () => {
                   className="w-full p-2 border rounded-lg"
                 />
               </div>
-              {/* <div className="mb-4">
-                <label className="block text-gray-700">Password</label>
-                <input
-                  type="text"
-                  name="password"
-                  defaultValue={selectedDriver.password}
-                  required
-                  className="w-full p-2 border rounded-lg"
-                />
-              </div> */}
               <div className="mb-4">
                 <label className="block text-gray-700">Name</label>
                 <input
@@ -673,22 +581,11 @@ const DriverDashboard = () => {
                   className="w-full p-2 border rounded-lg"
                 />
               </div>
-              {/* <div className="mb-4">
-            <label className="block text-gray-700">Experience</label>
-            <input
-                  type="text"
-                  name="experience"
-                  defaultValue={selectedDriver.experience}
-                  required
-                  className="w-full p-3 border rounded-lg"
-            />
-            </div> */}
               <div className="mb-4">
                 <label className="block text-gray-700">Profile Photo</label>
                 <input
                   type="file"
                   name="profilePhoto"
-                  // defaultValue={selectedDriver.profilePhoto}
                   accept="image/*"
                   className="w-full p-2 border rounded-lg"
                 />
@@ -698,8 +595,7 @@ const DriverDashboard = () => {
                 <input
                   type="file"
                   name="licensePhoto"
-                  // defaultValue={selectedDriver.licensePhoto}
-                  accept="image/*"
+                 accept="image/*"
                   className="w-full p-2 border rounded-lg"
                 />
               </div>

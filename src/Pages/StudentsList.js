@@ -469,7 +469,7 @@ useEffect(() => {
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
-          <Tooltip title="Upload Teaching Staff CSV">
+          <Tooltip title="Upload students CSV">
             <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
               {loading ? (
                 <CircularProgress size={24} />

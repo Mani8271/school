@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { useBranch } from "../Pages/Branches"; // 🔥 Import Branch Context
 import SidebarLink from "./SidebarLink";
@@ -54,17 +52,14 @@ const Sidebar = () => {
 
   const isSuperAdmin = role === "Super Admin";
   const isBusAdmin = role === "Bus Admin";
-  console.log("userCredentials", userCredentials);
-  console.log("role", role);
-
-  return (
+ return (
     <div className="flex">
       <div className={`fixed top-0 left-0 p-4 w-60 h-screen bg-gray-900 text-white shadow-lg z-50 overflow-y-auto transform ${isOpen ? "translate-x-0" : "-translate-x-60"} transition-transform md:translate-x-0`}>
         <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-white md:hidden">✖</button>
 
         {/* Logo Section */}
         <div className="flex items-center justify-center mb-6">
-          <img src="https://thumbs.dreamstime.com/b/creative-letter-vk-logo-..." alt="Logo" className="h-16 w-16 rounded-full" />
+          <img src="https://static.vecteezy.com/system/resources/thumbnails/024/544/506/small/alphabet-letter-vk-creative-logo-icon-design-concept-template-vector.jpg" alt="Logo" className="h-16 w-16 rounded-full" />
           <div className="ml-3">
             <h2 className="text-lg font-semibold">VK</h2>
             <h3 className="text-sm text-gray-400">International</h3>

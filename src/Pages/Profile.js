@@ -51,6 +51,7 @@ const Profile = () => {
     }
   }, [userdata]);
 
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -63,12 +64,12 @@ const Profile = () => {
       setEditProfile((prev) => ({
         ...prev,
         profileImage: URL.createObjectURL(file),
-        profileFile: file, // store the actual File object
+        profileFile: file, 
       }));
     }
   };
-
-  let userRole = "User"; // default role if none found
+// Determine user role from localStorage
+  let userRole = "User"; 
   const userData = localStorage.getItem("user");
   if (userData) {
     const user = JSON.parse(userData);
@@ -79,7 +80,6 @@ const Profile = () => {
 
   const handleSave = () => {
     if (!editProfile.name || !editProfile.email) return;
-
     const formData = new FormData();
     formData.append("firstName", editProfile?.name?.split(" ")?.[0] || "");
     formData.append("lastName", editProfile?.name?.split(" ")?.slice(1).join(" ") || "");
@@ -90,15 +90,12 @@ const Profile = () => {
     formData.append("role", editProfile.role);
 
     if (editProfile.profileFile) {
-      formData.append("profilePicture", editProfile.profileFile); // must match backend field name
+      formData.append("profilePicture", editProfile.profileFile); 
     }
 
     dispatch(UpdateprofiledataInitiate(formData , (success) => {
         if (success) {
-          
           dispatch(GetuserprofileInitiate());
-        } else {
-          console.error('Failed.');
         }
       }));
     handleClose();

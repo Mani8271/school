@@ -21,7 +21,6 @@ const BusList = () => {
   useEffect(() => {
     dispatch(getAllBuslistInitiate());
   }, []);
-  console.log("i am all allbuses", allbuses);
   const [openModal, setOpenModal] = useState(false);
   const [formData, setFormData] = useState({
     _id: "",
@@ -54,11 +53,8 @@ const BusList = () => {
   
       dispatch(UpdateBuslistInitiate(formData, (success) => {
         if (success) {
-          console.log('Delete successful, fetching updated teacher list.');
           dispatch(getAllBuslistInitiate());
           handleCloseModal();
-        } else {
-          console.error('Failed to update student.');
         }
       }))
     } else {
@@ -71,12 +67,8 @@ const BusList = () => {
       }
       dispatch(AddBuslistInitiate(formdata, (success) => {
         if (success) {
-          console.log('add successful, fetching add student list.');
           dispatch(getAllBuslistInitiate());
           handleCloseModal();
-
-        } else {
-          console.error('Failed to add teachet.');
         }
       }))
     }
@@ -92,16 +84,12 @@ const BusList = () => {
   const handleDeleteBus = (index) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this bus?");
     const id = allbuses?.find((item) => item?._id === index)
-    console.log("id45", id)
     if (isConfirmed) {
       if (id) {
         dispatch(
           DeleteBuslistInitiate({ _id: id._id }, (success) => {
             if (success) {
-              console.log('Delete successful, fetching updated student list.');
               dispatch(getAllBuslistInitiate());
-            } else {
-              console.error('Failed to delete student.');
             }
           })
         );
@@ -119,16 +107,13 @@ const BusList = () => {
     );
   });
 
-  console.log("filteredBuses", filteredBuses)
-
-  // Pagination logic
+// Pagination logic
   const totalPages = searchQuery ? Math.ceil(filteredBuses.length / entriesCount) : Math.ceil(allbuses.length / entriesCount);
   const startIndex = (currentPage - 1) * entriesCount;
   const endIndex = startIndex + entriesCount;
   const currentBuses = allbuses.slice(startIndex, endIndex);
   const filteredcurrentBuses = filteredBuses.slice(startIndex, endIndex);
-  console.log('i am currenrbusse', currentBuses)
-  const handleEntriesChange = (e) => {
+ const handleEntriesChange = (e) => {
     setEntriesCount(Number(e.target.value));
     setCurrentPage(1); // Reset to page 1 when entries per page change
   };
