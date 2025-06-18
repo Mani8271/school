@@ -19,7 +19,6 @@ const NonTeachingStaff = () => {
   console.log("i am all allnonteachers", allnonteachers);  const inputRef = useRef();
     const { loading } = useSelector((state) => state.nonteachingStaffUpload);
 
-  
 
   const handleIconClick = () => {
     inputRef.current.click(); // trigger hidden file input

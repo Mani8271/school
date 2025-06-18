@@ -97,14 +97,7 @@ const StudentsList = () => {
     URL.revokeObjectURL(url); // Clean up the URL object
   };
 
-  // Handle form input changes
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setNewStudent((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
+
   const handleInputChange = (e) => {
   const { name, value } = e.target;
 

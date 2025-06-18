@@ -24,10 +24,10 @@ const TeachingStaff = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { selectedBranch } = useBranch(); // Get the selected branch
   const navigate = useNavigate();
-   const inputRef = useRef();
-    const { loading } = useSelector((state) => state.teachingStaffUpload);
+  const inputRef = useRef();
+  const { loading } = useSelector((state) => state.teachingStaffUpload);
 
-  
+
 
   const handleIconClick = () => {
     inputRef.current.click(); // trigger hidden file input
@@ -119,9 +119,9 @@ const TeachingStaff = () => {
   const filteredTeachers = allteachers?.filter((teacher) => {
     const lowercasedQuery = searchQuery?.toLowerCase();
     return (
-       (teacher.teacherName || "").toLowerCase().includes(lowercasedQuery) ||
-  (teacher._id || "").toLowerCase().includes(lowercasedQuery) ||
-  (teacher.subject || "").toLowerCase().includes(lowercasedQuery)
+      (teacher.teacherName || "").toLowerCase().includes(lowercasedQuery) ||
+      (teacher._id || "").toLowerCase().includes(lowercasedQuery) ||
+      (teacher.subject || "").toLowerCase().includes(lowercasedQuery)
     );
   });
 
@@ -170,8 +170,8 @@ const TeachingStaff = () => {
     formdata.append("password", newTeacher.password);
     formdata.append("ProfilePicture", newTeacher.ProfilePicture);
 
-  if (formdata && !editingTeacher) {
-      console.log("hgdhg",formdata)
+    if (formdata && !editingTeacher) {
+      console.log("hgdhg", formdata)
       dispatch(AddTeachingstaffInitiate(formdata, (success) => {
         if (success) {
           console.log('add successful, fetching add student list.');
@@ -253,18 +253,18 @@ const TeachingStaff = () => {
 
   const handleDeleteClick = (id) => {
     // setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
-        if (id) {
-          dispatch(
-            DeleteTeacherInitiate({ _id: id }, (success) => {
-              if (success) {
-                console.log('Delete successful, fetching updated student list.');
-                dispatch(getAllTeachersInitiate());
-              } else {
-                console.error('Failed to delete student.');
-              }
-            })
-          );
-        }
+    if (id) {
+      dispatch(
+        DeleteTeacherInitiate({ _id: id }, (success) => {
+          if (success) {
+            console.log('Delete successful, fetching updated student list.');
+            dispatch(getAllTeachersInitiate());
+          } else {
+            console.error('Failed to delete student.');
+          }
+        })
+      );
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -272,10 +272,7 @@ const TeachingStaff = () => {
     setPage(0);
   };
 
-  // const handleAddTeacher = (newTeacher) => {
-  //   setTeachers((prevTeachers) => [newTeacher, ...prevTeachers]); // Prepend new teacher
-  // };
-  
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file || file.type !== "text/csv") {
@@ -288,7 +285,7 @@ const TeachingStaff = () => {
 
     dispatch(UploadTeachingStaffCsvInitiate(formData, (success) => {
       if (success) {
-         dispatch(getAllTeachersInitiate());
+        dispatch(getAllTeachersInitiate());
       }
     }));
   };
@@ -330,22 +327,22 @@ const TeachingStaff = () => {
           onChange={handleSearchChange}
         />
         <div className="flex flex-wrap items-center gap-4 justify-center sm:justify-start">
-   <input
-        type="file"
-        accept=".csv"
-        ref={inputRef}
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
-      <Tooltip title="Upload CSV">
-        <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
-          {loading ? (
-            <CircularProgress size={24} />
-          ) : (
-            <Upload className="text-blue-600 hover:text-blue-800" />
-          )}
-        </span>
-      </Tooltip>
+          <input
+            type="file"
+            accept=".csv"
+            ref={inputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+          <Tooltip title="Upload CSV">
+            <span onClick={handleIconClick} style={{ cursor: "pointer" }}>
+              {loading ? (
+                <CircularProgress size={24} />
+              ) : (
+                <Upload className="text-blue-600 hover:text-blue-800" />
+              )}
+            </span>
+          </Tooltip>
           <Add className="text-green-600 cursor-pointer hover:text-green-800" title="Add" onClick={() => setFormVisible(true)} />
           <Download className="text-purple-600 cursor-pointer hover:text-purple-800" title="Download" onClick={handleDownload} />
         </div>
@@ -389,9 +386,9 @@ const TeachingStaff = () => {
                   No teaching staff found
                 </td>
               </tr>
-            ): null}
+            ) : null}
             {searchQuery ? filteredTeachers.length > 0 ? (
-              allteachers.map((teacher) => (
+              filteredTeachers.map((teacher) => (
                 <tr key={teacher.id} className="hover:bg-gray-50 text-sm md:text-base">
                   {["_id", "teacherName", "subject", "gender", "qualification", "experience", "joiningDate", "email", "mobileNumber", "teacherName", "password", "address"].map((key) => (
                     <td key={key} className="px-4 py-3 border truncate max-w-[150px] sm:max-w-[150px]">{teacher[key]}</td>
@@ -412,7 +409,7 @@ const TeachingStaff = () => {
                   No teaching staff found
                 </td>
               </tr>
-            ): null}
+            ) : null}
           </tbody>
         </table>
       </div>
