@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GetAllNotificationsInitiate } from "../redux/actions/notifications/getAllNotificationsAction";
@@ -12,11 +11,9 @@ const Notifications = () => {
     older: [],
   });
 
-  // Get notifications from Redux store
   const notificationsState = useSelector((state) => state.notificationsData);
   const { notifications, loading, error } = notificationsState;
 
-  // Function to categorize notifications by date
   const categorizeNotifications = (notificationsList) => {
     const today = new Date();
     const yesterday = new Date();
@@ -27,14 +24,18 @@ const Notifications = () => {
     const todayFormatted = today.toDateString();
     const yesterdayFormatted = yesterday.toDateString();
 
-    return {
+    const categorized = {
       today: notificationsList.filter((n) => formatDate(n.date) === todayFormatted),
       yesterday: notificationsList.filter((n) => formatDate(n.date) === yesterdayFormatted),
       older: notificationsList.filter(
         (n) =>
-          formatDate(n.date) !== todayFormatted && formatDate(n.date) !== yesterdayFormatted
+          formatDate(n.date) !== todayFormatted &&
+          formatDate(n.date) !== yesterdayFormatted
       ),
     };
+
+    console.log(" Categorized Notifications:", categorized);
+    return categorized;
   };
 
   useEffect(() => {
@@ -43,6 +44,7 @@ const Notifications = () => {
 
   useEffect(() => {
     if (notifications.length > 0) {
+      console.log("Raw Notifications:", notifications);
       setCategorizedNotifications(categorizeNotifications(notifications));
     }
   }, [notifications]);
@@ -63,13 +65,15 @@ const Notifications = () => {
     <div className="max-w-6xl mx-auto p-6 bg-gray-100 min-h-screen">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-start">Notifications</h2>
 
-      <div className="max-h-[73vh] overflow-y-auto space-y-5 p-2">
+      <div className="max-h-[73vh] overflow-y-auto space-y-5 p-2 ">
         {["Today", "Yesterday", "Older"].map((label) => {
           const data = categorizedNotifications[label.toLowerCase()];
+          console.log(` ${label} Notifications:`, data);
+
           return (
             data.length > 0 && (
               <div key={label}>
-                <h3 className="text-xl font-bold text-gray-700 border-b-2 border-gray-300 pb-1">{label}</h3>
+                <h3 className="text-xl font-bold text-red-700 border-b-2 border-gray-300 pb-1">{label}</h3>
                 {data.map((notification) => (
                   <div
                     key={notification._id}

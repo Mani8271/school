@@ -705,7 +705,8 @@ useEffect(() => {
                     <span className="font-semibold md:hidden">Gender: </span> {student.gender}
                   </td>
                   <td className="px-4 py-2 border md:table-cell block">
-                    <span className="font-semibold md:hidden">DOB: </span> {student.dateofbirth}
+                    <span className="font-semibold md:hidden">DOB: </span>
+                      {new Date(student.dateofbirth).toLocaleDateString("en-GB")}
                   </td>
                   <td className="px-4 py-2 border md:table-cell block">
                     <span className="font-semibold md:hidden">Blood Group: </span> {student.bloodgroup}
